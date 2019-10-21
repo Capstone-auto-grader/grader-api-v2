@@ -1,0 +1,21 @@
+syntax = "proto3";
+package grader;
+
+import "google/api/annotations.proto";
+
+service Grader {
+    rpc SubmitForGrading(SubmitForGradingRequest) returns (SubmitForGradingResponse){
+        option (google.api.http) = {
+            post: "/api/submit"
+            body: "*"
+        };
+    }
+}
+
+message SubmitForGradingRequest {
+    string urn_key = 1;
+    string zip_key = 2;
+    string student_name = 3;
+}
+
+message SubmitForGradingResponse {}
