@@ -17,6 +17,7 @@ require (
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
+	github.com/urfave/cli v1.22.1 // indirect
 	go.opencensus.io v0.22.1 // indirect
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/exp v0.0.0-20191014171548-69215a2ee97e // indirect

@@ -1,109 +1,74 @@
 package main
 
 import (
-	"context" // Use "golang.org/x/net/context" for Golang version <= 1.6
-	"crypto/tls"
-	"crypto/x509"
-	"errors"
+	"context"
 	"flag"
 	"log"
-	"net"
 	"net/http"
+	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/Capstone-auto-grader/grader-api-v2/certs"
 	pb "github.com/Capstone-auto-grader/grader-api-v2/graderpb"
 	"github.com/Capstone-auto-grader/grader-api-v2/internal/graderd"
 )
 
 var (
-	// command-line options:
-	// gRPC server endpoint
+	// command-line flags:
 	grpcAddr = flag.String("grpc-addr", "localhost", "gRPC server endpoint")
 	grpcPort = flag.String("grpc-port", ":9090", "gRPC server port")
+	keyFile  = flag.String("key-file", "certs/server.key", "private key")
+	certFile = flag.String("cert-file", "certs/server.pem", "public cert")
 )
 
-func run() error {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	grpcEndpoint := *grpcAddr + *grpcPort
-
-	// Read certs
-	keyPair, certPool, err := parseCert()
+func serve() error {
+	serverCert, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
 	if err != nil {
-		return err
+		log.Fatalln("failed to create cert:", err)
 	}
-	// Create gRPC server
-	serverOpts := []grpc.ServerOption{
-		grpc.Creds(credentials.NewClientTLSFromCert(certPool, grpcEndpoint))}
-	server := grpc.NewServer(serverOpts...)
-	pb.RegisterGraderServer(server, &graderd.Service{})
+	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
+	pb.RegisterGraderServer(grpcServer, &graderd.Service{})
 
-	// Register gRPC server endpoint
-	// Note: Make sure the gRPC server is running properly and accessible
-	dcreds := credentials.NewTLS(&tls.Config{
-		ServerName: grpcEndpoint,
-		RootCAs:    certPool,
-	})
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(dcreds)}
-	mux := runtime.NewServeMux()
-	err = pb.RegisterGraderHandlerFromEndpoint(ctx, mux, grpcEndpoint, opts)
+	endpoint := *grpcAddr + *grpcPort
+	clientCert, err := credentials.NewClientTLSFromFile(*certFile, endpoint)
 	if err != nil {
-		return err
+		log.Fatalln("failed to create cert:", err)
 	}
-
-	// Start HTTP server (and proxy calls to gRPC server endpoint)
-	log.Print("graderd is up")
-	//return http.ListenAndServe(":8081", mux)
-	conn, err := net.Listen("tcp", *grpcPort)
+	conn, err := grpc.DialContext(
+		context.Background(),
+		endpoint,
+		grpc.WithTransportCredentials(clientCert),
+	)
 	if err != nil {
-		panic(err)
+		log.Fatalln("Failed to dial server:", err)
 	}
 
-	srv := &http.Server{
-		Addr:    grpcEndpoint,
-		Handler: grpcHandlerFunc(server),
-		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{*keyPair},
-			NextProtos:   []string{"h2"},
-		},
+	router := runtime.NewServeMux()
+	if err = pb.RegisterGraderHandler(context.Background(), router, conn); err != nil {
+		log.Fatalln("Failed to register gateway:", err)
 	}
 
-	return srv.Serve(tls.NewListener(conn, srv.TLSConfig))
+	return http.ListenAndServeTLS(*grpcPort, *certFile, *keyFile, grpcHandlerFunc(grpcServer, router))
 }
 
-func grpcHandlerFunc(grpcServer *grpc.Server) http.Handler {
+// grpcHandlerFunc returns an http.Handler that delegates to grpcServer on incoming gRPC
+// connections or otherHandler otherwise. Copied from cockroachdb.
+func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		grpcServer.ServeHTTP(w, r)
+		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			otherHandler.ServeHTTP(w, r)
+		}
 	})
-}
-
-func parseCert() (*tls.Certificate, *x509.CertPool, error) {
-	var err error
-	pair, err := tls.X509KeyPair([]byte(certs.Cert), []byte(certs.Key))
-	if err != nil {
-		return nil, nil, err
-	}
-
-	keyPair := &pair
-	certPool := x509.NewCertPool()
-	ok := certPool.AppendCertsFromPEM([]byte(certs.Cert))
-	if !ok {
-		return nil, nil, errors.New("invalid certs")
-	}
-
-	return keyPair, certPool, nil
 }
 
 func main() {
 	flag.Parse()
 
-	if err := run(); err != nil {
+	if err := serve(); err != nil {
 		log.Fatal(err)
 	}
 }

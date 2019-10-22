@@ -22,6 +22,7 @@ proxy-proto:
 .PHONY: build
 build: proto
 	go build -o bin/graderd cmd/graderd/main.go
+	go build -o bin/grader-cli cmd/grader-cli/*.go
 
 .PHONY: test
 test:
