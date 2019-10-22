@@ -17,10 +17,10 @@ import (
 
 var (
 	// command-line flags:
-	grpcAddr = flag.String("grpc-addr", "localhost", "gRPC server endpoint")
-	grpcPort = flag.String("grpc-port", ":9090", "gRPC server port")
-	keyFile  = flag.String("key-file", "certs/server.key", "private key")
-	certFile = flag.String("cert-file", "certs/server.pem", "public cert")
+	grpcAddr = flag.String("addr", "localhost", "gRPC server endpoint")
+	grpcPort = flag.String("port", ":9090", "gRPC server port")
+	keyFile  = flag.String("key", "certs/server.key", "private key")
+	certFile = flag.String("cert", "certs/server.pem", "public cert")
 )
 
 func serve() error {

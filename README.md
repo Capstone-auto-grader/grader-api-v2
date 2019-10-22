@@ -17,7 +17,12 @@ Params:
 make build
 ```
 
-## To run locally
+## To run `graderd` locally
 ```
-make run
+./bin/graderd [--addr address] [--port port] [--cert public cert] [--key private key]
+```
+
+## To call `graderd` locally
+```
+./bin/grader-cli [-a address:port] [-c public cert] submit [-u assignment-urn] [-z zip-key] [-n student's name]
 ```
