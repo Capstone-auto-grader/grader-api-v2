@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
@@ -16,17 +17,22 @@ import (
 )
 
 var (
-	// command-line flags:
+	// command-line flags
 	grpcAddr = flag.String("addr", "localhost", "gRPC server endpoint")
 	grpcPort = flag.String("port", ":9090", "gRPC server port")
 	keyFile  = flag.String("key", "certs/server.key", "private key")
 	certFile = flag.String("cert", "certs/server.pem", "public cert")
+
+	// errors
+	failedCertCreation    = "failed to create cert from file"
+	failedDialServer      = "failed to dial server"
+	failedRegisterGateway = "failed to register gateway"
 )
 
 func serve() error {
 	serverCert, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
 	if err != nil {
-		log.Fatalln("failed to create cert:", err)
+		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
 	pb.RegisterGraderServer(grpcServer, &graderd.Service{})
@@ -34,7 +40,7 @@ func serve() error {
 	endpoint := *grpcAddr + *grpcPort
 	clientCert, err := credentials.NewClientTLSFromFile(*certFile, endpoint)
 	if err != nil {
-		log.Fatalln("failed to create cert:", err)
+		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	conn, err := grpc.DialContext(
 		context.Background(),
@@ -42,12 +48,12 @@ func serve() error {
 		grpc.WithTransportCredentials(clientCert),
 	)
 	if err != nil {
-		log.Fatalln("Failed to dial server:", err)
+		log.Fatalln(errors.Wrap(err, failedDialServer))
 	}
 
 	router := runtime.NewServeMux()
 	if err = pb.RegisterGraderHandler(context.Background(), router, conn); err != nil {
-		log.Fatalln("Failed to register gateway:", err)
+		log.Fatalln(errors.Wrap(err, failedRegisterGateway))
 	}
 
 	return http.ListenAndServeTLS(*grpcPort, *certFile, *keyFile, grpcHandlerFunc(grpcServer, router))
@@ -55,12 +61,12 @@ func serve() error {
 
 // grpcHandlerFunc returns an http.Handler that delegates to grpcServer on incoming gRPC
 // connections or otherHandler otherwise. Copied from cockroachdb.
-func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
+func grpcHandlerFunc(grpcHandler *grpc.Server, httpHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-			grpcServer.ServeHTTP(w, r)
+			grpcHandler.ServeHTTP(w, r)
 		} else {
-			otherHandler.ServeHTTP(w, r)
+			httpHandler.ServeHTTP(w, r)
 		}
 	})
 }

@@ -7,6 +7,10 @@ require (
 	cloud.google.com/go/bigquery v1.1.0 // indirect
 	cloud.google.com/go/storage v1.1.1 // indirect
 	github.com/creack/pty v1.1.9 // indirect
+	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/docker v1.13.1
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-units v0.4.0 // indirect
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.3.1 // indirect
@@ -15,6 +19,8 @@ require (
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/kr/pty v1.1.8 // indirect
+	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
+	github.com/pkg/errors v0.8.1 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/urfave/cli v1.22.1 // indirect
