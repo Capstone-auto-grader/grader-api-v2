@@ -4,6 +4,13 @@ package grader;
 import "google/api/annotations.proto";
 
 service Grader {
+    // SubmitForGrading provides an endpoint for allowing caller to submit a student's name
+    // and assignment information for grading.
+    //
+    // This is a non-blocking call, it returns a "OK" as acknowledgement or "InvalidArgument"
+    // for invalid parameters.
+    //
+    // Once the assignment has been graded, it will call a specific endpoint of the caller.
     rpc SubmitForGrading(SubmitForGradingRequest) returns (SubmitForGradingResponse){
         option (google.api.http) = {
             post: "/api/submit"

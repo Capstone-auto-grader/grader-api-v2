@@ -8,6 +8,7 @@ import (
 	pb "github.com/Capstone-auto-grader/grader-api-v2/graderpb"
 )
 
+// Submit builds a cli.Command for calling the SubmitForGrading endpoint.
 func Submit() cli.Command {
 	command := cli.Command{
 		Name:        "submit",
@@ -32,6 +33,7 @@ func Submit() cli.Command {
 	return command
 }
 
+// SubmitAction builds the cli.ActionFunc for actually calling the endpoint with the gRPC client.
 func SubmitAction() cli.ActionFunc {
 	return func(c *cli.Context) error {
 		ctx := context.Background()

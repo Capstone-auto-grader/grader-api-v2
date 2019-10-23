@@ -1,3 +1,11 @@
+// grader-cli is a wrapper around the GraderClient gRPC client provided by graderpb.
+//
+// Usage
+//
+// 		go build -o *.go grader-cli
+//		./grader-cli
+//
+// This file provides all the definition of flags and commands for the grader-cli.
 package main
 
 import (
@@ -7,6 +15,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// main is the entry-point for running the grader-cli.
 func main() {
 	// create cli app
 	app := cli.NewApp()

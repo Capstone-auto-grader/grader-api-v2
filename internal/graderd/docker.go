@@ -14,6 +14,7 @@ type DockerClient struct {
 	cli *client.Client
 }
 
+// NewDockerClient creates a docker client for interacting with the docker host.
 func NewDockerClient() *DockerClient {
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -65,6 +66,7 @@ func (d *DockerClient) createTask(ctx context.Context, image string, task *Task)
 	return resp.ID, nil
 }
 
+// StartTasks starts execution of all the given tasks (container IDs).
 func (d *DockerClient) StartTasks(ctx context.Context, ids []string) error {
 	for _, id := range ids {
 		if err := d.cli.ContainerStart(ctx, id, types.ContainerStartOptions{}); err != nil {
@@ -74,10 +76,12 @@ func (d *DockerClient) StartTasks(ctx context.Context, ids []string) error {
 	return nil
 }
 
+// EndTask stops the execution of the task and remove its container from the host.
 func (d *DockerClient) EndTask(ctx context.Context, id string) error {
 	return d.cli.ContainerRemove(ctx, id, types.ContainerRemoveOptions{})
 }
 
+// TaskOutput retrieves the stdout of the task from the container.
 func (d *DockerClient) TaskOutput(ctx context.Context, id string) ([]byte, error) {
 	out, err := d.cli.ContainerLogs(ctx, id, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {

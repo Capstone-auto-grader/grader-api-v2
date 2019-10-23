@@ -149,6 +149,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type GraderClient interface {
+	// SubmitForGrading provides an endpoint for allowing caller to submit a student's name
+	// and assignment information for grading.
+	//
+	// This is a non-blocking call, it returns a "OK" as acknowledgement or "InvalidArgument"
+	// for invalid parameters.
+	//
+	// Once the assignment has been graded, it will call a specific endpoint of the caller.
 	SubmitForGrading(ctx context.Context, in *SubmitForGradingRequest, opts ...grpc.CallOption) (*SubmitForGradingResponse, error)
 }
 
@@ -171,6 +178,13 @@ func (c *graderClient) SubmitForGrading(ctx context.Context, in *SubmitForGradin
 
 // GraderServer is the server API for Grader service.
 type GraderServer interface {
+	// SubmitForGrading provides an endpoint for allowing caller to submit a student's name
+	// and assignment information for grading.
+	//
+	// This is a non-blocking call, it returns a "OK" as acknowledgement or "InvalidArgument"
+	// for invalid parameters.
+	//
+	// Once the assignment has been graded, it will call a specific endpoint of the caller.
 	SubmitForGrading(context.Context, *SubmitForGradingRequest) (*SubmitForGradingResponse, error)
 }
 

@@ -1,3 +1,16 @@
+// graderd is the entry-point for starting the grader API service.
+//
+// This file creates a gRPC endpoint and a http endpoint that uses the same given port.
+//
+// Incoming http GET/POST requests are translated into gRPC calls and reverse-proxied
+// to the gRPC handler.
+//
+// gRPC calls are directly handled by the gRPC handler.
+//
+// Usage
+//
+// 		go build -o *.go graderd
+//		./graderd
 package main
 
 import (
@@ -29,6 +42,7 @@ var (
 	failedRegisterGateway = "failed to register gateway"
 )
 
+// serve creates and runs the gRPC and http server.
 func serve() error {
 	serverCert, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
 	if err != nil {
@@ -60,7 +74,7 @@ func serve() error {
 }
 
 // grpcHandlerFunc returns an http.Handler that delegates to grpcServer on incoming gRPC
-// connections or otherHandler otherwise. Copied from cockroachdb.
+// connections or httpHandler otherwise. This block is copied from cockroachdb.
 func grpcHandlerFunc(grpcHandler *grpc.Server, httpHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {

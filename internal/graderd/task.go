@@ -12,6 +12,7 @@ const (
 	Failed
 )
 
+// Task represents an assignment of a student.
 type Task struct {
 	ID          string
 	StudentName string
@@ -23,6 +24,7 @@ type Task struct {
 
 type Status int
 
+// Name represents a pseudo unique name that represent this task.
 func (t *Task) Name() string {
 	name := strings.ReplaceAll(t.StudentName, " ", "_")
 	urn := t.Urn

@@ -1,3 +1,5 @@
+// client.go generates a gRPC client using the protobuf stub,
+// the server address, and the public cert.
 package main
 
 import (
