@@ -26,9 +26,10 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type SubmitForGradingRequest struct {
-	UrnKey               string   `protobuf:"bytes,1,opt,name=urn_key,json=urnKey,proto3" json:"urn_key,omitempty"`
-	ZipKey               string   `protobuf:"bytes,2,opt,name=zip_key,json=zipKey,proto3" json:"zip_key,omitempty"`
-	StudentName          string   `protobuf:"bytes,3,opt,name=student_name,json=studentName,proto3" json:"student_name,omitempty"`
+	AssignmentId         string   `protobuf:"bytes,1,opt,name=assignment_id,json=assignmentId,proto3" json:"assignment_id,omitempty"`
+	UrnKey               string   `protobuf:"bytes,2,opt,name=urn_key,json=urnKey,proto3" json:"urn_key,omitempty"`
+	ZipKey               string   `protobuf:"bytes,3,opt,name=zip_key,json=zipKey,proto3" json:"zip_key,omitempty"`
+	StudentName          string   `protobuf:"bytes,4,opt,name=student_name,json=studentName,proto3" json:"student_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -58,6 +59,13 @@ func (m *SubmitForGradingRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_SubmitForGradingRequest proto.InternalMessageInfo
+
+func (m *SubmitForGradingRequest) GetAssignmentId() string {
+	if m != nil {
+		return m.AssignmentId
+	}
+	return ""
+}
 
 func (m *SubmitForGradingRequest) GetUrnKey() string {
 	if m != nil {
@@ -111,30 +119,125 @@ func (m *SubmitForGradingResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_SubmitForGradingResponse proto.InternalMessageInfo
 
+type CreateAssignmentRequest struct {
+	Dockerfile           []byte   `protobuf:"bytes,1,opt,name=dockerfile,proto3" json:"dockerfile,omitempty"`
+	Script               []byte   `protobuf:"bytes,2,opt,name=script,proto3" json:"script,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateAssignmentRequest) Reset()         { *m = CreateAssignmentRequest{} }
+func (m *CreateAssignmentRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateAssignmentRequest) ProtoMessage()    {}
+func (*CreateAssignmentRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cf1cca22a1b70c39, []int{2}
+}
+
+func (m *CreateAssignmentRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateAssignmentRequest.Unmarshal(m, b)
+}
+func (m *CreateAssignmentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateAssignmentRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateAssignmentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateAssignmentRequest.Merge(m, src)
+}
+func (m *CreateAssignmentRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateAssignmentRequest.Size(m)
+}
+func (m *CreateAssignmentRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateAssignmentRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateAssignmentRequest proto.InternalMessageInfo
+
+func (m *CreateAssignmentRequest) GetDockerfile() []byte {
+	if m != nil {
+		return m.Dockerfile
+	}
+	return nil
+}
+
+func (m *CreateAssignmentRequest) GetScript() []byte {
+	if m != nil {
+		return m.Script
+	}
+	return nil
+}
+
+type CreateAssignmentResponse struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateAssignmentResponse) Reset()         { *m = CreateAssignmentResponse{} }
+func (m *CreateAssignmentResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateAssignmentResponse) ProtoMessage()    {}
+func (*CreateAssignmentResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cf1cca22a1b70c39, []int{3}
+}
+
+func (m *CreateAssignmentResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateAssignmentResponse.Unmarshal(m, b)
+}
+func (m *CreateAssignmentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateAssignmentResponse.Marshal(b, m, deterministic)
+}
+func (m *CreateAssignmentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateAssignmentResponse.Merge(m, src)
+}
+func (m *CreateAssignmentResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateAssignmentResponse.Size(m)
+}
+func (m *CreateAssignmentResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateAssignmentResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateAssignmentResponse proto.InternalMessageInfo
+
+func (m *CreateAssignmentResponse) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*SubmitForGradingRequest)(nil), "grader.SubmitForGradingRequest")
 	proto.RegisterType((*SubmitForGradingResponse)(nil), "grader.SubmitForGradingResponse")
+	proto.RegisterType((*CreateAssignmentRequest)(nil), "grader.CreateAssignmentRequest")
+	proto.RegisterType((*CreateAssignmentResponse)(nil), "grader.CreateAssignmentResponse")
 }
 
 func init() { proto.RegisterFile("graderpb/grader.proto", fileDescriptor_cf1cca22a1b70c39) }
 
 var fileDescriptor_cf1cca22a1b70c39 = []byte{
-	// 229 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4d, 0x2f, 0x4a, 0x4c,
-	0x49, 0x2d, 0x2a, 0x48, 0xd2, 0x87, 0x30, 0xf4, 0x0a, 0x8a, 0xf2, 0x4b, 0xf2, 0x85, 0xd8, 0x20,
-	0x3c, 0x29, 0x99, 0xf4, 0xfc, 0xfc, 0xf4, 0x9c, 0x54, 0xfd, 0xc4, 0x82, 0x4c, 0xfd, 0xc4, 0xbc,
-	0xbc, 0xfc, 0x92, 0xc4, 0x92, 0xcc, 0xfc, 0xbc, 0x62, 0x88, 0x2a, 0xa5, 0x3c, 0x2e, 0xf1, 0xe0,
-	0xd2, 0xa4, 0xdc, 0xcc, 0x12, 0xb7, 0xfc, 0x22, 0xf7, 0xa2, 0xc4, 0x94, 0xcc, 0xbc, 0xf4, 0xa0,
-	0xd4, 0xc2, 0xd2, 0xd4, 0xe2, 0x12, 0x21, 0x71, 0x2e, 0xf6, 0xd2, 0xa2, 0xbc, 0xf8, 0xec, 0xd4,
-	0x4a, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0xb6, 0xd2, 0xa2, 0x3c, 0xef, 0xd4, 0x4a, 0x90,
-	0x44, 0x55, 0x66, 0x01, 0x58, 0x82, 0x09, 0x22, 0x51, 0x95, 0x59, 0x00, 0x92, 0x50, 0xe4, 0xe2,
-	0x29, 0x2e, 0x29, 0x4d, 0x49, 0xcd, 0x2b, 0x89, 0xcf, 0x4b, 0xcc, 0x4d, 0x95, 0x60, 0x06, 0xcb,
-	0x72, 0x43, 0xc5, 0xfc, 0x12, 0x73, 0x53, 0x95, 0xa4, 0xb8, 0x24, 0x30, 0xed, 0x2b, 0x2e, 0xc8,
-	0xcf, 0x2b, 0x4e, 0x35, 0x2a, 0xe7, 0x62, 0x73, 0x07, 0xbb, 0x59, 0x28, 0x97, 0x4b, 0x00, 0x5d,
-	0x95, 0x90, 0xbc, 0x1e, 0xd4, 0x7b, 0x38, 0xdc, 0x2b, 0xa5, 0x80, 0x5b, 0x01, 0xc4, 0x02, 0x25,
-	0xb1, 0xa6, 0xcb, 0x4f, 0x26, 0x33, 0x09, 0x28, 0x71, 0x83, 0x03, 0xa3, 0x18, 0xac, 0xcc, 0x8a,
-	0x51, 0x2b, 0x89, 0x0d, 0x1c, 0x16, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x15, 0x8e, 0x1a,
-	0xa5, 0x4a, 0x01, 0x00, 0x00,
+	// 340 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0x51, 0x4a, 0xc3, 0x40,
+	0x10, 0x86, 0x49, 0x94, 0x88, 0xd3, 0x28, 0x65, 0xa1, 0x6d, 0x08, 0xa2, 0x35, 0xbe, 0x48, 0x1f,
+	0x5a, 0xd0, 0xb7, 0xbe, 0x89, 0x60, 0x11, 0x41, 0x30, 0x1e, 0xa0, 0x6c, 0xbb, 0x63, 0x58, 0xda,
+	0xec, 0xae, 0xbb, 0x1b, 0xa4, 0x7d, 0xf4, 0x0a, 0x3d, 0x9a, 0x57, 0xf0, 0x00, 0x1e, 0x41, 0xba,
+	0x89, 0xad, 0xb4, 0xe4, 0x2d, 0x3b, 0xff, 0xcf, 0xfc, 0xdf, 0xcc, 0x04, 0x5a, 0x99, 0xa6, 0x0c,
+	0xb5, 0x9a, 0x0c, 0xca, 0x8f, 0xbe, 0xd2, 0xd2, 0x4a, 0x12, 0x94, 0xaf, 0xf8, 0x2c, 0x93, 0x32,
+	0x9b, 0xe3, 0x80, 0x2a, 0x3e, 0xa0, 0x42, 0x48, 0x4b, 0x2d, 0x97, 0xc2, 0x94, 0xae, 0x64, 0xe5,
+	0x41, 0xe7, 0xb5, 0x98, 0xe4, 0xdc, 0x3e, 0x48, 0x3d, 0xd2, 0x94, 0x71, 0x91, 0xa5, 0xf8, 0x5e,
+	0xa0, 0xb1, 0xe4, 0x0a, 0x4e, 0xa8, 0x31, 0x3c, 0x13, 0x39, 0x0a, 0x3b, 0xe6, 0x2c, 0xf2, 0xba,
+	0xde, 0xf5, 0x71, 0x1a, 0x6e, 0x8b, 0x8f, 0x8c, 0x74, 0xe0, 0xa8, 0xd0, 0x62, 0x3c, 0xc3, 0x45,
+	0xe4, 0x3b, 0x39, 0x28, 0xb4, 0x78, 0xc2, 0xc5, 0x5a, 0x58, 0x72, 0xe5, 0x84, 0x83, 0x52, 0x58,
+	0x72, 0xb5, 0x16, 0x2e, 0x21, 0x34, 0xb6, 0x60, 0xeb, 0x9e, 0x82, 0xe6, 0x18, 0x1d, 0x3a, 0xb5,
+	0x51, 0xd5, 0x9e, 0x69, 0x8e, 0x49, 0x0c, 0xd1, 0x3e, 0x94, 0x51, 0x52, 0x18, 0x4c, 0x5e, 0xa0,
+	0x73, 0xaf, 0x91, 0x5a, 0xbc, 0xdb, 0x60, 0xfc, 0x01, 0x9f, 0x03, 0x30, 0x39, 0x9d, 0xa1, 0x7e,
+	0xe3, 0x73, 0x74, 0xb4, 0x61, 0xfa, 0xaf, 0x42, 0xda, 0x10, 0x98, 0xa9, 0xe6, 0xca, 0x3a, 0xd4,
+	0x30, 0xad, 0x5e, 0x49, 0x0f, 0xa2, 0xfd, 0x96, 0x65, 0x1c, 0x39, 0x05, 0x7f, 0x33, 0xb9, 0xcf,
+	0xd9, 0xcd, 0x8f, 0x07, 0xc1, 0xc8, 0x6d, 0x96, 0xe4, 0xd0, 0xdc, 0xa5, 0x24, 0x17, 0xfd, 0xea,
+	0x08, 0x35, 0x4b, 0x8d, 0xbb, 0xf5, 0x86, 0x6a, 0xc0, 0xf6, 0xe7, 0xd7, 0xf7, 0xca, 0x6f, 0x26,
+	0x0d, 0x77, 0x32, 0xe3, 0x6c, 0x43, 0xaf, 0x47, 0x3e, 0xa0, 0xb9, 0x4b, 0xb9, 0x8d, 0xab, 0x59,
+	0xc9, 0x36, 0xae, 0x6e, 0xc0, 0xa4, 0xeb, 0xe2, 0xe2, 0xa4, 0xe5, 0xe2, 0xa6, 0x3b, 0xb6, 0xa1,
+	0xd7, 0x9b, 0x04, 0xee, 0x57, 0xb9, 0xfd, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x8e, 0x77, 0xc0, 0x66,
+	0x69, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -157,6 +260,7 @@ type GraderClient interface {
 	//
 	// Once the assignment has been graded, it will call a specific endpoint of the caller.
 	SubmitForGrading(ctx context.Context, in *SubmitForGradingRequest, opts ...grpc.CallOption) (*SubmitForGradingResponse, error)
+	CreateAssignment(ctx context.Context, in *CreateAssignmentRequest, opts ...grpc.CallOption) (*CreateAssignmentResponse, error)
 }
 
 type graderClient struct {
@@ -176,6 +280,15 @@ func (c *graderClient) SubmitForGrading(ctx context.Context, in *SubmitForGradin
 	return out, nil
 }
 
+func (c *graderClient) CreateAssignment(ctx context.Context, in *CreateAssignmentRequest, opts ...grpc.CallOption) (*CreateAssignmentResponse, error) {
+	out := new(CreateAssignmentResponse)
+	err := c.cc.Invoke(ctx, "/grader.Grader/CreateAssignment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GraderServer is the server API for Grader service.
 type GraderServer interface {
 	// SubmitForGrading provides an endpoint for allowing caller to submit a student's name
@@ -186,6 +299,7 @@ type GraderServer interface {
 	//
 	// Once the assignment has been graded, it will call a specific endpoint of the caller.
 	SubmitForGrading(context.Context, *SubmitForGradingRequest) (*SubmitForGradingResponse, error)
+	CreateAssignment(context.Context, *CreateAssignmentRequest) (*CreateAssignmentResponse, error)
 }
 
 // UnimplementedGraderServer can be embedded to have forward compatible implementations.
@@ -194,6 +308,9 @@ type UnimplementedGraderServer struct {
 
 func (*UnimplementedGraderServer) SubmitForGrading(ctx context.Context, req *SubmitForGradingRequest) (*SubmitForGradingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitForGrading not implemented")
+}
+func (*UnimplementedGraderServer) CreateAssignment(ctx context.Context, req *CreateAssignmentRequest) (*CreateAssignmentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAssignment not implemented")
 }
 
 func RegisterGraderServer(s *grpc.Server, srv GraderServer) {
@@ -218,6 +335,24 @@ func _Grader_SubmitForGrading_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Grader_CreateAssignment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAssignmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraderServer).CreateAssignment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grader.Grader/CreateAssignment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraderServer).CreateAssignment(ctx, req.(*CreateAssignmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Grader_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "grader.Grader",
 	HandlerType: (*GraderServer)(nil),
@@ -225,6 +360,10 @@ var _Grader_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitForGrading",
 			Handler:    _Grader_SubmitForGrading_Handler,
+		},
+		{
+			MethodName: "CreateAssignment",
+			Handler:    _Grader_CreateAssignment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

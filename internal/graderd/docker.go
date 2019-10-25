@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"log"
+	"net/http"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -15,8 +16,8 @@ type DockerClient struct {
 }
 
 // NewDockerClient creates a docker client for interacting with the docker host.
-func NewDockerClient() *DockerClient {
-	cli, err := client.NewEnvClient()
+func NewDockerClient(host string, version string) *DockerClient {
+	cli, err := client.NewClient(host, version, &http.Client{}, nil)
 	if err != nil {
 		log.Fatalln(err)
 		return nil
@@ -27,7 +28,14 @@ func NewDockerClient() *DockerClient {
 	}
 }
 
-func (d *DockerClient) ListTasks(ctx context.Context) []*Task {
+// CreateAssignment with the given dockerfile and script, returns a unique assignment id.
+func (d *DockerClient) CreateAssignment(ctx context.Context, dockerFile []byte, script []byte) (string, error) {
+
+	return "", nil
+}
+
+// ListTasks lists all the active tasks associated with the assignment id in the docker host.
+func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string) []*Task {
 
 	return nil
 }
@@ -56,6 +64,10 @@ func (d *DockerClient) createTask(ctx context.Context, image string, task *Task)
 	// create container
 	resp, err := d.cli.ContainerCreate(ctx, &container.Config{
 		Image: image,
+		Labels: map[string]string{
+			"assignment_id": task.AssignmentID,
+			"student_name":  task.StudentName,
+		},
 	}, nil, nil, task.Name())
 	if err != nil {
 		return "", err

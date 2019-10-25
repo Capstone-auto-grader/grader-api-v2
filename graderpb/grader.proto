@@ -17,12 +17,29 @@ service Grader {
             body: "*"
         };
     }
+
+    rpc CreateAssignment(CreateAssignmentRequest) returns (CreateAssignmentResponse) {
+        option (google.api.http) = {
+            post: "/api/createAssignment"
+            body: "*"
+        };
+    }
 }
 
 message SubmitForGradingRequest {
-    string urn_key = 1;
-    string zip_key = 2;
-    string student_name = 3;
+    string assignment_id = 1;
+    string urn_key = 2;
+    string zip_key = 3;
+    string student_name = 4;
 }
 
 message SubmitForGradingResponse {}
+
+message CreateAssignmentRequest {
+    bytes dockerfile = 1;
+    bytes script = 2;
+}
+
+message CreateAssignmentResponse {
+    string id = 1;
+}
