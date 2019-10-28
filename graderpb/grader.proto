@@ -32,6 +32,10 @@ service Grader {
 }
 
 message SubmitForGradingRequest {
+    repeated Task tasks = 1;
+}
+
+message Task {
     string assignment_id = 1;
     string urn_key = 2;
     string zip_key = 3;

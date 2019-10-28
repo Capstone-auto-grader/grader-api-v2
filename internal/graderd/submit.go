@@ -16,9 +16,13 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 	}
 
 	// Create tasks.
-	task := NewTask(req.GetAssignmentId(), req.GetUrnKey(), req.GetZipKey(), req.GetStudentName())
+	taskList := make([]*Task, 0, len(req.GetTasks()))
+	for _, t := range req.GetTasks() {
+		task := NewTask(t.GetAssignmentId(), t.GetUrnKey(), t.GetZipKey(), t.GetStudentName())
+		taskList = append(taskList, task)
+	}
 	// TODO: Add image and image url
-	ids, err := s.schr.CreateTasks(ctx, "", "", []*Task{task})
+	ids, err := s.schr.CreateTasks(ctx, "", "", taskList)
 	if err != nil {
 		return nil, grpcError(err)
 	}

@@ -9,6 +9,22 @@ var (
 // Validate validates a SubmitForGradingRequest.
 // Currently, it only checks if all the fields are provided.
 func (m *SubmitForGradingRequest) Validate() error {
+	if m.GetTasks() == nil {
+		return ErrCannotBeEmpty
+	}
+
+	for _, t := range m.GetTasks() {
+		if err := t.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Validate validates a Task.
+// Currently, it only checks if all the fields are provided.
+func (m *Task) Validate() error {
 	if len(m.GetUrnKey()) == 0 {
 		return ErrCannotBeEmpty
 	}

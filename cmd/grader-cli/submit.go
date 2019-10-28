@@ -44,9 +44,13 @@ func SubmitAction() cli.ActionFunc {
 		name := c.String("name")
 
 		req := &pb.SubmitForGradingRequest{
-			UrnKey:      urn,
-			ZipKey:      zipkey,
-			StudentName: name,
+			Tasks: []*pb.Task{
+				{
+					UrnKey:      urn,
+					ZipKey:      zipkey,
+					StudentName: name,
+				},
+			},
 		}
 
 		client := NewClient(cert, addr)
