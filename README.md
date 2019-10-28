@@ -2,6 +2,8 @@
 
 > This is a proof-of-concept prototype of version 2 of the grader API
 
+![General Flow](https://static.swimlanes.io/76623e5f2b57ba04a5c1e3f4b13de3a1.png)
+
 ## Endpoints
 
 ### SubmitForGrading
@@ -10,6 +12,13 @@ Params:
 - assignment URN
 - zip key
 - student name
+```
+
+### CreateAssignment
+```
+Params:
+- docker file
+- run script
 ```
 
 ## To build
