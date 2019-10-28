@@ -31,10 +31,12 @@ import (
 
 var (
 	// command-line flags
-	grpcAddr = flag.String("addr", "localhost", "gRPC server endpoint")
-	grpcPort = flag.String("port", ":9090", "gRPC server port")
-	keyFile  = flag.String("key", "certs/server.key", "private key")
-	certFile = flag.String("cert", "certs/server.pem", "public cert")
+	grpcAddr      = flag.String("GRPC_ADDR", "localhost", "gRPC server endpoint")
+	grpcPort      = flag.String("GRPC_PORT", ":9090", "gRPC server port")
+	dockerAddr    = flag.String("DOCKER_ADDR", "localhost:8443", "docker host endpoint")
+	dockerVersion = flag.String("DOCKER_VERSION", "19.0", "docker host version")
+	keyFile       = flag.String("KEY", "certs/server.key", "private key")
+	certFile      = flag.String("CERT", "certs/server.pem", "public cert")
 
 	// errors
 	failedCertCreation    = "failed to create cert from file"
@@ -44,12 +46,14 @@ var (
 
 // serve creates and runs the gRPC and http server.
 func serve() error {
+	// create gRPC server
 	serverCert, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
 	if err != nil {
 		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
-	pb.RegisterGraderServer(grpcServer, &graderd.Service{})
+	graderService := graderd.NewGraderService(graderd.NewDockerClient(*dockerAddr, *dockerVersion))
+	pb.RegisterGraderServer(grpcServer, graderService)
 
 	endpoint := *grpcAddr + *grpcPort
 	clientCert, err := credentials.NewClientTLSFromFile(*certFile, endpoint)

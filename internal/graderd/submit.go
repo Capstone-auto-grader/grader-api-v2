@@ -15,6 +15,17 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	// TODO: Implement me
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+	// Create tasks.
+	task := NewTask(req.GetAssignmentId(), req.GetUrnKey(), req.GetZipKey(), req.GetStudentName())
+	// TODO: Add image and image url
+	ids, err := s.schr.CreateTasks(ctx, "", "", []*Task{task})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	// Start tasks.
+	if err := s.schr.StartTasks(ctx, ids); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &graderpb.SubmitForGradingResponse{}, nil
 }

@@ -26,6 +26,16 @@ type Task struct {
 
 type Status int
 
+// NewTask creates a task.
+func NewTask(assignmentID, urn, zip, studentName string) *Task {
+	return &Task{
+		AssignmentID: assignmentID,
+		Urn:          urn,
+		ZipKey:       zip,
+		StudentName:  studentName,
+	}
+}
+
 // Name is a pseudo unique name that represent this task.
 func (t *Task) Name() string {
 	name := strings.ReplaceAll(t.StudentName, " ", "_")
