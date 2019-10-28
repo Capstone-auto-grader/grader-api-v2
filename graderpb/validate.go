@@ -27,11 +27,7 @@ func (m *SubmitForGradingRequest) Validate() error {
 // Validate validates a CreateAssignmentRequest.
 // Currently, it only checks if all the fields are provided.
 func (m *CreateAssignmentRequest) Validate() error {
-	if m.GetDockerfile() == nil {
-		return ErrCannotBeEmpty
-	}
-
-	if m.GetScript() == nil {
+	if m.GetImageTar() == nil {
 		return ErrCannotBeEmpty
 	}
 

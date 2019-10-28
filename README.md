@@ -17,8 +17,7 @@ Params:
 ### CreateAssignment
 ```
 Params:
-- docker file
-- run script
+- image tar
 ```
 
 ## To build

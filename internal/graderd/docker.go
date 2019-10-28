@@ -1,6 +1,7 @@
 package graderd
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"log"
@@ -9,6 +10,8 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+
+	"github.com/pkg/errors"
 )
 
 type DockerClient struct {
@@ -29,15 +32,35 @@ func NewDockerClient(host string, version string) *DockerClient {
 }
 
 // CreateAssignment with the given dockerfile and script, returns a unique assignment id.
-func (d *DockerClient) CreateAssignment(ctx context.Context, dockerFile []byte, script []byte) (string, error) {
+func (d *DockerClient) CreateAssignment(ctx context.Context, imageTar []byte) (string, error) {
+	_, err := d.cli.ImageBuild(ctx, bytes.NewReader(imageTar), types.ImageBuildOptions{})
+	if err != nil {
+		return "", errors.Wrap(err, ErrFailedToBuildImage.Error())
+	}
 
 	return "", nil
 }
 
 // ListTasks lists all the active tasks associated with the assignment id in the docker host.
-func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string) []*Task {
+func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error) {
+	containers, err := d.cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	var taskList []*Task
+	for _, c := range containers {
+		t, err := db.GetTaskByID(ctx, c.ID)
+		if err != nil {
+			return nil, errors.Wrap(err, ErrTaskNotFound.Error())
+		}
+		t.Status = ParseContainerState(c.State)
+		if err := db.UpdateTask(ctx, t); err != nil {
+			return nil, err
+		}
+		taskList = append(taskList, t)
+	}
+	return taskList, nil
 }
 
 func (d *DockerClient) CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error) {

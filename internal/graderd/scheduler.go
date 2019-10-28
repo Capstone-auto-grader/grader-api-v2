@@ -6,9 +6,9 @@ import (
 )
 
 type Scheduler interface {
-	CreateAssignment(ctx context.Context, dockerFile []byte, script []byte) (string, error)
+	CreateAssignment(ctx context.Context, imageTar []byte) (string, error)
 
-	ListTasks(ctx context.Context, assignmentID string) []*Task
+	ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error)
 	CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error)
 	StartTasks(ctx context.Context, taskIDs []string) error
 	EndTask(ctx context.Context, taskID string) error
@@ -22,15 +22,15 @@ type MockScheduler struct {
 	tasksTable      map[string]*Task
 }
 
-func (m *MockScheduler) CreateAssignment(ctx context.Context, dockerFile []byte, script []byte) (string, error) {
-	h := md5.Sum(append(dockerFile, script...))
+func (m *MockScheduler) CreateAssignment(ctx context.Context, imageTar []byte) (string, error) {
+	h := md5.Sum(imageTar)
 	id := string(h[:])
 	m.assignmentIDs = append(m.assignmentIDs, id)
 	return id, nil
 }
 
-func (m *MockScheduler) ListTasks(ctx context.Context, assignmentID string) []*Task {
-	return m.assignmentTasks[assignmentID]
+func (m *MockScheduler) ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error) {
+	return m.assignmentTasks[assignmentID], nil
 }
 
 func (m *MockScheduler) existsAssignment(ctx context.Context, assignmentID string) bool {

@@ -41,8 +41,7 @@ message SubmitForGradingRequest {
 message SubmitForGradingResponse {}
 
 message CreateAssignmentRequest {
-    bytes dockerfile = 1;
-    bytes script = 2;
+    bytes image_tar = 1;
 }
 
 message CreateAssignmentResponse {

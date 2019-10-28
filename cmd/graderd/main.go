@@ -33,8 +33,8 @@ var (
 	// command-line flags
 	grpcAddr      = flag.String("GRPC_ADDR", "localhost", "gRPC server endpoint")
 	grpcPort      = flag.String("GRPC_PORT", ":9090", "gRPC server port")
-	dockerAddr    = flag.String("DOCKER_ADDR", "localhost:8443", "docker host endpoint")
-	dockerVersion = flag.String("DOCKER_VERSION", "19.0", "docker host version")
+	dockerAddr    = flag.String("DOCKER_ADDR", "localhost:2376", "docker host endpoint")
+	dockerVersion = flag.String("DOCKER_VERSION", "1.40", "docker host version")
 	keyFile       = flag.String("KEY", "certs/server.key", "private key")
 	certFile      = flag.String("CERT", "certs/server.pem", "public cert")
 

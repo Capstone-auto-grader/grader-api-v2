@@ -15,9 +15,9 @@ func (s *Service) CreateAssignment(ctx context.Context, req *pb.CreateAssignment
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	id, err := s.schr.CreateAssignment(ctx, req.GetDockerfile(), req.GetScript())
+	id, err := s.schr.CreateAssignment(ctx, req.GetImageTar())
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, grpcError(err)
 	}
 
 	return &pb.CreateAssignmentResponse{
