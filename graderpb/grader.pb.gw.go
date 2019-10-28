@@ -231,7 +231,7 @@ func RegisterGraderHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 var (
 	pattern_Grader_SubmitForGrading_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submit"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Grader_CreateAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "createAssignment"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Grader_CreateAssignment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "assignment", "create"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

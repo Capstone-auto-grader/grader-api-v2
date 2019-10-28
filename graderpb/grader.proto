@@ -18,9 +18,14 @@ service Grader {
         };
     }
 
+    // CreateAssignment creates an assignment with a given dockerfile and startup script.
+    //
+    // This endpoint creates an image on the docker host and returns an unique assignment ID.
+    //
+    // Calling this endpoint is REQUIRED before grading any assignments.
     rpc CreateAssignment(CreateAssignmentRequest) returns (CreateAssignmentResponse) {
         option (google.api.http) = {
-            post: "/api/createAssignment"
+            post: "/api/assignment/create"
             body: "*"
         };
     }
