@@ -3,6 +3,9 @@ package graderd
 import (
 	"context"
 	"crypto/md5"
+	"math/rand"
+
+	"github.com/pkg/errors"
 )
 
 type Scheduler interface {
@@ -10,7 +13,7 @@ type Scheduler interface {
 
 	ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error)
 	CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error)
-	StartTasks(ctx context.Context, taskIDs []string) error
+	StartTasks(ctx context.Context, taskIDs []string, db Database) error
 	EndTask(ctx context.Context, taskID string) error
 
 	TaskOutput(ctx context.Context, id string) ([]byte, error)
@@ -50,9 +53,13 @@ func (m *MockScheduler) CreateTasks(ctx context.Context, image, imageURL string,
 		}
 
 		// generate "container id"
-		id := md5.Sum([]byte(t.Name()))
-		t.ID = string(id[:])
-		ids = append(ids, string(id[:]))
+		containerID := make([]byte, 16)
+		if _, err := rand.Read(containerID); err != nil {
+			return nil, errors.Wrap(err, ErrFailedToCreateTask.Error())
+		}
+
+		t.ContainerID = string(containerID)
+		ids = append(ids, t.ID)
 
 		// store tasks in assignments
 		m.assignmentTasks[t.AssignmentID] = append(m.assignmentTasks[t.AssignmentID], t)
@@ -62,7 +69,7 @@ func (m *MockScheduler) CreateTasks(ctx context.Context, image, imageURL string,
 	return ids, nil
 }
 
-func (m *MockScheduler) StartTasks(ctx context.Context, taskIDs []string) error {
+func (m *MockScheduler) StartTasks(ctx context.Context, taskIDs []string, db Database) error {
 	for _, id := range taskIDs {
 		t, ok := m.tasksTable[id]
 		if !ok {

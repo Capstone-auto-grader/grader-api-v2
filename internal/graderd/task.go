@@ -15,25 +15,32 @@ const (
 
 // Task represents an assignment of a student.
 type Task struct {
-	ID           string
+	// ID is a pseudo-unique name that represents this task.
+	ID string
+	// ContainerID represents the container that's running this task.
+	ContainerID string
+	// AssignmentID is the assignment that this task belongs to.
 	AssignmentID string
 	StudentName  string
 	Urn          string
 	ZipKey       string
 	Status       Status
-	CreatedTime  *time.Time
+	// CreatedTime is the time when the container is created for this task.
+	CreatedTime *time.Time
 }
 
 type Status int
 
 // NewTask creates a task.
 func NewTask(assignmentID, urn, zip, studentName string) *Task {
-	return &Task{
+	t := &Task{
 		AssignmentID: assignmentID,
 		Urn:          urn,
 		ZipKey:       zip,
 		StudentName:  studentName,
 	}
+	t.ID = t.Name()
+	return t
 }
 
 // Name is a pseudo unique name that represent this task.

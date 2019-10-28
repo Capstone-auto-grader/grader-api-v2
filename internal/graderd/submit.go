@@ -27,7 +27,7 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 		return nil, grpcError(err)
 	}
 	// Start tasks.
-	if err := s.schr.StartTasks(ctx, ids); err != nil {
+	if err := s.schr.StartTasks(ctx, ids, nil); err != nil {
 		return nil, grpcError(err)
 	}
 

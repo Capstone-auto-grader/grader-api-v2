@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -91,20 +92,32 @@ func (d *DockerClient) createTask(ctx context.Context, image string, task *Task)
 			"assignment_id": task.AssignmentID,
 			"student_name":  task.StudentName,
 		},
-	}, nil, nil, task.Name())
+	}, nil, nil, task.ID)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, ErrFailedToCreateTask.Error())
 	}
 
-	// assign id
-	task.ID = resp.ID
+	// assign id and time
+	task.ContainerID = resp.ID
+	t := time.Now()
+	task.CreatedTime = &t
+
 	return resp.ID, nil
 }
 
 // StartTasks starts execution of all the given tasks (container IDs).
-func (d *DockerClient) StartTasks(ctx context.Context, taskIDs []string) error {
+func (d *DockerClient) StartTasks(ctx context.Context, taskIDs []string, db Database) error {
 	for _, id := range taskIDs {
 		if err := d.cli.ContainerStart(ctx, id, types.ContainerStartOptions{}); err != nil {
+			return errors.Wrap(err, ErrFailedToStartTask.Error())
+		}
+		// update db
+		t, err := db.GetTaskByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		t.Status = StatusStarted
+		if err := db.UpdateTask(ctx, t); err != nil {
 			return err
 		}
 	}
