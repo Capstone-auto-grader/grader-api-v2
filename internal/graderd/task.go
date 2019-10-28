@@ -7,9 +7,10 @@ import (
 )
 
 const (
-	Pending Status = iota
-	Complete
-	Failed
+	StatusPending Status = iota
+	StatusStarted
+	StatusComplete
+	StatusFailed
 )
 
 // Task represents an assignment of a student.

@@ -79,8 +79,8 @@ func (d *DockerClient) createTask(ctx context.Context, image string, task *Task)
 }
 
 // StartTasks starts execution of all the given tasks (container IDs).
-func (d *DockerClient) StartTasks(ctx context.Context, ids []string) error {
-	for _, id := range ids {
+func (d *DockerClient) StartTasks(ctx context.Context, taskIDs []string) error {
+	for _, id := range taskIDs {
 		if err := d.cli.ContainerStart(ctx, id, types.ContainerStartOptions{}); err != nil {
 			return err
 		}
@@ -89,8 +89,8 @@ func (d *DockerClient) StartTasks(ctx context.Context, ids []string) error {
 }
 
 // EndTask stops the execution of the task and remove its container from the host.
-func (d *DockerClient) EndTask(ctx context.Context, id string) error {
-	return d.cli.ContainerRemove(ctx, id, types.ContainerRemoveOptions{})
+func (d *DockerClient) EndTask(ctx context.Context, taskID string) error {
+	return d.cli.ContainerRemove(ctx, taskID, types.ContainerRemoveOptions{})
 }
 
 // TaskOutput retrieves the stdout of the task from the container.
