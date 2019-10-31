@@ -19,18 +19,21 @@ import (
 func TestCreateAssignmentAndGrade(t *testing.T) {
 	tests := []struct {
 		desc     string
+		srv      *graderd.Service
 		imageTar []byte
 		tasks    []*pb.Task
 		err      error
 	}{
 		{
-			desc:     "one assignment, one submission",
+			desc:     "mock: one assignment, one submission",
+			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
 			imageTar: createImage(),
 			tasks:    createNTasks(1),
 			err:      nil,
 		},
 		{
-			desc:     "failed to create assignment (no image)",
+			desc:     "mock: failed to create assignment (no image)",
+			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
 			imageTar: []byte{},
 			tasks:    createNTasks(1),
 			err:      status.Error(codes.InvalidArgument, pb.ErrMissingDockerFile.Error()),
@@ -38,7 +41,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		srv := graderd.NewGraderService(graderd.NewMockScheduler(), "")
+		srv := test.srv
 		ctx := context.Background()
 
 		t.Run(test.desc, func(t *testing.T) {
