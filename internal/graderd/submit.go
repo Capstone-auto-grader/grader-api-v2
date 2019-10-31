@@ -12,7 +12,7 @@ import (
 // SubmitForGrading fulfills a SubmitForGradingRequest.
 func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForGradingRequest) (*graderpb.SubmitForGradingResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Create tasks.

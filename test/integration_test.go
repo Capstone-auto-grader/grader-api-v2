@@ -27,7 +27,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 		{
 			desc:     "mock: one assignment, one submission",
 			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
-			imageTar: createImage(),
+			imageTar: createValidImage(),
 			tasks:    createNTasks(1),
 			err:      nil,
 		},
@@ -37,6 +37,13 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 			imageTar: []byte{},
 			tasks:    createNTasks(1),
 			err:      status.Error(codes.InvalidArgument, pb.ErrMissingDockerFile.Error()),
+		},
+		{
+			desc:     "mock: one assignment, one invalid submission",
+			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			imageTar: createValidImage(),
+			tasks:    append(createNTasks(1), &pb.Task{}),
+			err:      status.Error(codes.InvalidArgument, pb.ErrCannotBeEmpty.Error()),
 		},
 	}
 
@@ -81,7 +88,7 @@ func fillAssignmentID(tasks []*pb.Task, id string) []*pb.Task {
 	return tasks
 }
 
-func createImage() []byte {
+func createValidImage() []byte {
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 	var files = []struct {
