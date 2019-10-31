@@ -25,6 +25,14 @@ type MockScheduler struct {
 	tasksTable      map[string]*Task
 }
 
+func NewMockScheduler() *MockScheduler {
+	return &MockScheduler{
+		assignmentIDs:   make([]string, 0),
+		assignmentTasks: make(map[string][]*Task),
+		tasksTable:      make(map[string]*Task),
+	}
+}
+
 func (m *MockScheduler) CreateAssignment(ctx context.Context, imageTar []byte) (string, error) {
 	h := md5.Sum(imageTar)
 	id := string(h[:])

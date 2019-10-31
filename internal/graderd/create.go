@@ -12,7 +12,7 @@ import (
 // CreateAssignment creates an assignment using a given dockerfile and run script.
 func (s *Service) CreateAssignment(ctx context.Context, req *pb.CreateAssignmentRequest) (*pb.CreateAssignmentResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	id, err := s.schr.CreateAssignment(ctx, req.GetImageTar())
