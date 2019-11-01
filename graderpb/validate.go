@@ -60,6 +60,10 @@ func (m *Task) Validate() error {
 // - if the tar contains a Dockerfile
 // - if the tar contains a script
 func (m *CreateAssignmentRequest) Validate() error {
+	if m.GetImageName() == "" {
+		return ErrCannotBeEmpty
+	}
+
 	if m.GetImageTar() == nil {
 		return ErrCannotBeEmpty
 	}

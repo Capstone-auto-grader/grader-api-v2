@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
-	"os"
 	"time"
 
 	"github.com/docker/docker/api/types"
