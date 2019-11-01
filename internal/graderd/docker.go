@@ -3,7 +3,6 @@ package graderd
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -33,10 +32,10 @@ func NewDockerClient(host string, version string) *DockerClient {
 }
 
 // CreateAssignment with the given dockerfile and script, returns a unique assignment id.
-func (d *DockerClient) CreateAssignment(ctx context.Context, imageName string, imageTar []byte) error {
+func (d *DockerClient) CreateImage(ctx context.Context, imageName string, imageTar []byte) error {
 	buildOptions := types.ImageBuildOptions{
 		Dockerfile: "Dockerfile", // optional, is the default
-		Tags:       []string{fmt.Sprintf("%s:latest", imageName)},
+		Tags:       []string{imageName},
 	}
 	img := bytes.NewReader(imageTar)
 	// build image
@@ -70,33 +69,30 @@ func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string, db Da
 	return taskList, nil
 }
 
-func (d *DockerClient) CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error) {
-	// pull image
-	_, err := d.cli.ImagePull(ctx, imageURL, types.ImagePullOptions{})
-	if err != nil {
-		return nil, err
-	}
-
+func (d *DockerClient) CreateTasks(ctx context.Context, taskList []*Task, db Database) ([]string, error) {
 	// create tasks
 	createdTasks := make([]string, 0, len(taskList))
 	for _, t := range taskList {
-		id, err := d.createTask(ctx, image, t)
+		id, err := d.createTask(ctx, t)
 		if err != nil {
 			return nil, err
 		}
 		createdTasks = append(createdTasks, id)
 	}
+	// update database
+	if err := db.PutTasks(ctx, taskList); err != nil {
+		return nil, err
+	}
 
 	return createdTasks, nil
 }
 
-func (d *DockerClient) createTask(ctx context.Context, image string, task *Task) (string, error) {
+func (d *DockerClient) createTask(ctx context.Context, task *Task) (string, error) {
 	// create container
 	resp, err := d.cli.ContainerCreate(ctx, &container.Config{
-		Image: image,
+		Image: task.AssignmentID,
 		Labels: map[string]string{
-			"assignment_id": task.AssignmentID,
-			"student_name":  task.StudentName,
+			"student_name": task.StudentName,
 		},
 	}, nil, nil, task.ID)
 	if err != nil {

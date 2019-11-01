@@ -2,6 +2,7 @@ package graderd
 
 type Service struct {
 	schr    Scheduler
+	db      Database
 	webAddr string
 }
 

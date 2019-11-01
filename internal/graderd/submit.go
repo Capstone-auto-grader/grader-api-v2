@@ -22,12 +22,12 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 		taskList = append(taskList, task)
 	}
 	// TODO: Add image and image url
-	ids, err := s.schr.CreateTasks(ctx, "", "", taskList)
+	ids, err := s.schr.CreateTasks(ctx, taskList, s.db)
 	if err != nil {
 		return nil, grpcError(err)
 	}
 	// Start tasks.
-	if err := s.schr.StartTasks(ctx, ids, nil); err != nil {
+	if err := s.schr.StartTasks(ctx, ids, s.db); err != nil {
 		return nil, grpcError(err)
 	}
 

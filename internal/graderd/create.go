@@ -15,7 +15,7 @@ func (s *Service) CreateAssignment(ctx context.Context, req *pb.CreateAssignment
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	err := s.schr.CreateAssignment(ctx, req.GetImageName(), req.GetImageTar())
+	err := s.schr.CreateImage(ctx, req.GetImageName(), req.GetImageTar())
 	if err != nil {
 		return nil, grpcError(err)
 	}

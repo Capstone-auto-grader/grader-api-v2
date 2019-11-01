@@ -9,10 +9,10 @@ import (
 )
 
 type Scheduler interface {
-	CreateAssignment(ctx context.Context, imageName string, imageTar []byte) error
+	CreateImage(ctx context.Context, imageName string, imageTar []byte) error
 
 	ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error)
-	CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error)
+	CreateTasks(ctx context.Context, taskList []*Task, db Database) ([]string, error)
 	StartTasks(ctx context.Context, taskIDs []string, db Database) error
 	EndTask(ctx context.Context, taskID string) error
 
@@ -33,7 +33,7 @@ func NewMockScheduler() *MockScheduler {
 	}
 }
 
-func (m *MockScheduler) CreateAssignment(ctx context.Context, imageName string, imageTar []byte) error {
+func (m *MockScheduler) CreateImage(ctx context.Context, imageName string, imageTar []byte) error {
 	h := md5.Sum(imageTar)
 	id := string(h[:])
 	m.assignmentIDs = append(m.assignmentIDs, id)
@@ -53,7 +53,7 @@ func (m *MockScheduler) existsAssignment(ctx context.Context, assignmentID strin
 	return false
 }
 
-func (m *MockScheduler) CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error) {
+func (m *MockScheduler) CreateTasks(ctx context.Context, taskList []*Task, db Database) ([]string, error) {
 	ids := make([]string, 0, len(taskList))
 	for _, t := range taskList {
 		if !m.existsAssignment(ctx, t.AssignmentID) {
