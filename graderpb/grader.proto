@@ -45,9 +45,8 @@ message Task {
 message SubmitForGradingResponse {}
 
 message CreateAssignmentRequest {
-    bytes image_tar = 1;
+    string image_name = 1;
+    bytes image_tar = 2;
 }
 
-message CreateAssignmentResponse {
-    string id = 1;
-}
+message CreateAssignmentResponse {}

@@ -3,9 +3,11 @@ package graderd
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
+	"os"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -21,7 +23,7 @@ type DockerClient struct {
 
 // NewDockerClient creates a docker client for interacting with the docker host.
 func NewDockerClient(host string, version string) *DockerClient {
-	cli, err := client.NewClient(host, version, &http.Client{}, nil)
+	cli, err := client.NewClient(host, version, nil, nil)
 	if err != nil {
 		log.Fatalln(err)
 		return nil
@@ -33,13 +35,19 @@ func NewDockerClient(host string, version string) *DockerClient {
 }
 
 // CreateAssignment with the given dockerfile and script, returns a unique assignment id.
-func (d *DockerClient) CreateAssignment(ctx context.Context, imageTar []byte) (string, error) {
-	_, err := d.cli.ImageBuild(ctx, bytes.NewReader(imageTar), types.ImageBuildOptions{})
+func (d *DockerClient) CreateAssignment(ctx context.Context, imageName string, imageTar []byte) error {
+	buildOptions := types.ImageBuildOptions{
+		Dockerfile: "Dockerfile", // optional, is the default
+		Tags:       []string{fmt.Sprintf("%s:latest", imageName)},
+	}
+	img := bytes.NewReader(imageTar)
+	// build image
+	_, err := d.cli.ImageBuild(ctx, img, buildOptions)
 	if err != nil {
-		return "", errors.Wrap(err, ErrFailedToBuildImage.Error())
+		return errors.Wrap(err, ErrFailedToBuildImage.Error())
 	}
 
-	return "", nil
+	return nil
 }
 
 // ListTasks lists all the active tasks associated with the assignment id in the docker host.

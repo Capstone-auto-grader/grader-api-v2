@@ -9,7 +9,7 @@ import (
 )
 
 type Scheduler interface {
-	CreateAssignment(ctx context.Context, imageTar []byte) (string, error)
+	CreateAssignment(ctx context.Context, imageName string, imageTar []byte) error
 
 	ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error)
 	CreateTasks(ctx context.Context, image, imageURL string, taskList []*Task) ([]string, error)
@@ -33,11 +33,11 @@ func NewMockScheduler() *MockScheduler {
 	}
 }
 
-func (m *MockScheduler) CreateAssignment(ctx context.Context, imageTar []byte) (string, error) {
+func (m *MockScheduler) CreateAssignment(ctx context.Context, imageName string, imageTar []byte) error {
 	h := md5.Sum(imageTar)
 	id := string(h[:])
 	m.assignmentIDs = append(m.assignmentIDs, id)
-	return id, nil
+	return nil
 }
 
 func (m *MockScheduler) ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error) {

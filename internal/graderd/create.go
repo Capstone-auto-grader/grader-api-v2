@@ -15,12 +15,10 @@ func (s *Service) CreateAssignment(ctx context.Context, req *pb.CreateAssignment
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	id, err := s.schr.CreateAssignment(ctx, req.GetImageTar())
+	err := s.schr.CreateAssignment(ctx, req.GetImageName(), req.GetImageTar())
 	if err != nil {
 		return nil, grpcError(err)
 	}
 
-	return &pb.CreateAssignmentResponse{
-		Id: id,
-	}, nil
+	return &pb.CreateAssignmentResponse{}, nil
 }

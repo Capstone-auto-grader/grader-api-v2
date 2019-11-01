@@ -18,58 +18,59 @@ import (
 
 func TestCreateAssignmentAndGrade(t *testing.T) {
 	tests := []struct {
-		desc     string
-		srv      *graderd.Service
-		imageTar []byte
-		tasks    []*pb.Task
-		err      error
+		desc      string
+		srv       *graderd.Service
+		imageName string
+		imageTar  []byte
+		tasks     []*pb.Task
+		err       error
 	}{
 		{
-			desc:     "mock: one assignment, one submission",
-			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
-			imageTar: createValidImage(),
-			tasks:    createNTasks(1),
-			err:      nil,
+			desc:      "mock: one assignment, one submission",
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			imageName: "assignment1",
+			imageTar:  createValidImage(),
+			tasks:     createNTasks(1),
+			err:       nil,
 		},
 		{
-			desc:     "mock: failed to create assignment (no image)",
-			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
-			imageTar: []byte{},
-			tasks:    createNTasks(1),
-			err:      status.Error(codes.InvalidArgument, pb.ErrMissingDockerFile.Error()),
+			desc:      "mock: failed to create assignment (no image)",
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			imageName: "assignment1",
+			imageTar:  []byte{},
+			tasks:     createNTasks(1),
+			err:       status.Error(codes.InvalidArgument, pb.ErrMissingDockerFile.Error()),
 		},
 		{
-			desc:     "mock: one assignment, one invalid submission",
-			srv:      graderd.NewGraderService(graderd.NewMockScheduler(), ""),
-			imageTar: createValidImage(),
-			tasks:    append(createNTasks(1), &pb.Task{}),
-			err:      status.Error(codes.InvalidArgument, pb.ErrCannotBeEmpty.Error()),
+			desc:      "mock: one assignment, one invalid submission",
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			imageName: "assignment1",
+			imageTar:  createValidImage(),
+			tasks:     append(createNTasks(1), &pb.Task{}),
+			err:       status.Error(codes.InvalidArgument, pb.ErrCannotBeEmpty.Error()),
 		},
 	}
 
 	for _, test := range tests {
-		srv := test.srv
-		ctx := context.Background()
-
 		t.Run(test.desc, func(t *testing.T) {
+			srv := test.srv
+			ctx := context.Background()
+
 			// create assignment
 			creq := &pb.CreateAssignmentRequest{
-				ImageTar: test.imageTar,
+				ImageName: test.imageName,
+				ImageTar:  test.imageTar,
 			}
-			cres, err := srv.CreateAssignment(ctx, creq)
+			_, err := srv.CreateAssignment(ctx, creq)
 			if err != nil {
 				if want, got := test.err, err; !reflect.DeepEqual(want, got) {
 					t.Errorf("unexpected error:\n- want: %+v\n- got: %+v\n", want, got)
 				}
 				return
 			}
-			id := cres.GetId()
-			if id == "" {
-				t.Errorf("unexpected empty assignmentID: %+v\n", id)
-			}
 			// grade submissions
 			greq := &pb.SubmitForGradingRequest{
-				Tasks: fillAssignmentID(test.tasks, id),
+				Tasks: fillAssignmentID(test.tasks, test.imageName),
 			}
 			_, err = srv.SubmitForGrading(ctx, greq)
 			if err != nil {
