@@ -29,7 +29,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 			desc:      "mock: one assignment, one submission",
 			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
 			imageName: "assignment1",
-			imageTar:  createValidImage(),
+			imageTar:  createHelloWorldImage(),
 			tasks:     createNTasks(1),
 			err:       nil,
 		},

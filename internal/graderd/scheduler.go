@@ -2,7 +2,6 @@ package graderd
 
 import (
 	"context"
-	"crypto/md5"
 	"math/rand"
 
 	"github.com/pkg/errors"
@@ -34,9 +33,7 @@ func NewMockScheduler() *MockScheduler {
 }
 
 func (m *MockScheduler) CreateImage(ctx context.Context, imageName string, imageTar []byte) error {
-	h := md5.Sum(imageTar)
-	id := string(h[:])
-	m.assignmentIDs = append(m.assignmentIDs, id)
+	m.assignmentIDs = append(m.assignmentIDs, imageName)
 	return nil
 }
 

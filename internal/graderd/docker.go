@@ -3,6 +3,7 @@ package graderd
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -35,7 +36,7 @@ func NewDockerClient(host string, version string) *DockerClient {
 func (d *DockerClient) CreateImage(ctx context.Context, imageName string, imageTar []byte) error {
 	buildOptions := types.ImageBuildOptions{
 		Dockerfile: "Dockerfile", // optional, is the default
-		Tags:       []string{imageName},
+		Tags:       []string{fmt.Sprintf("%s:latest", imageName)},
 	}
 	img := bytes.NewReader(imageTar)
 	// build image

@@ -2,7 +2,7 @@
 
 > This is a proof-of-concept prototype of version 2 of the grader API
 
-![General Flow](https://static.swimlanes.io/76623e5f2b57ba04a5c1e3f4b13de3a1.png)
+![General Flow](https://static.swimlanes.io/ff07aa1e89a7f1032ebfa9b5ba88a108.png)
 
 ## Endpoints
 
@@ -12,11 +12,13 @@ Params:
 - assignment URN
 - zip key
 - student name
+- timeout
 ```
 
 ### CreateAssignment
 ```
 Params:
+- image name
 - image tar
 ```
 

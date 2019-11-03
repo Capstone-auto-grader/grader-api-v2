@@ -21,7 +21,6 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 		task := NewTask(t.GetAssignmentId(), t.GetUrnKey(), t.GetZipKey(), t.GetStudentName())
 		taskList = append(taskList, task)
 	}
-	// TODO: Add image and image url
 	ids, err := s.schr.CreateTasks(ctx, taskList, s.db)
 	if err != nil {
 		return nil, grpcError(err)
