@@ -35,6 +35,7 @@ var (
 	grpcPort      = flag.String("GRPC_PORT", ":9090", "gRPC server port")
 	dockerAddr    = flag.String("DOCKER_ADDR", "http://localhost:2376", "docker host endpoint")
 	dockerVersion = flag.String("DOCKER_VERSION", "1.40", "docker host version")
+	databaseAddr  = flag.String("DATABASE_ADDR", "localhost:3306", "database endpoint")
 	webAddr       = flag.String("WEB_ADDR", "localhost:8080", "web API server endpoint")
 	keyFile       = flag.String("KEY", "certs/server.key", "private key")
 	certFile      = flag.String("CERT", "certs/server.pem", "public cert")
@@ -53,7 +54,7 @@ func serve() error {
 		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
-	graderService := graderd.NewGraderService(graderd.NewDockerClient(*dockerAddr, *dockerVersion), *webAddr)
+	graderService := graderd.NewGraderService(graderd.NewDockerClient(*dockerAddr, *dockerVersion), graderd.NewPGDatabase(*databaseAddr), *webAddr)
 	pb.RegisterGraderServer(grpcServer, graderService)
 
 	endpoint := *grpcAddr + *grpcPort

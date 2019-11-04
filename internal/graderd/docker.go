@@ -55,86 +55,95 @@ func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string, db Da
 		return nil, err
 	}
 
-	var taskList []*Task
+	taskList, err := db.GetTasksByAssignment(ctx, assignmentID)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrAssignmentNotFound.Error())
+	}
+
 	for _, c := range containers {
-		t, err := db.GetTaskByID(ctx, c.ID)
-		if err != nil {
-			return nil, errors.Wrap(err, ErrTaskNotFound.Error())
+		for _, t := range taskList {
+			if t.ContainerID == c.ID {
+				t.Status = ParseContainerState(c.State)
+				if err := db.UpdateTask(ctx, t); err != nil {
+					return nil, err
+				}
+			}
 		}
-		t.Status = ParseContainerState(c.State)
-		if err := db.UpdateTask(ctx, t); err != nil {
-			return nil, err
-		}
-		taskList = append(taskList, t)
 	}
 	return taskList, nil
 }
 
-func (d *DockerClient) CreateTasks(ctx context.Context, taskList []*Task, db Database) ([]string, error) {
+func (d *DockerClient) CreateTasks(ctx context.Context, taskList []*Task, db Database) error {
 	// create tasks
-	createdTasks := make([]string, 0, len(taskList))
 	for _, t := range taskList {
-		id, err := d.createTask(ctx, t)
+		err := d.createTask(ctx, t)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		createdTasks = append(createdTasks, id)
 	}
 	// update database
 	if err := db.PutTasks(ctx, taskList); err != nil {
-		return nil, err
+		return errors.Wrap(err, ErrFailedToUpdateTask.Error())
 	}
 
-	return createdTasks, nil
+	return nil
 }
 
-func (d *DockerClient) createTask(ctx context.Context, task *Task) (string, error) {
+func (d *DockerClient) createTask(ctx context.Context, task *Task) error {
 	// create container
 	resp, err := d.cli.ContainerCreate(ctx, &container.Config{
 		Image: task.AssignmentID,
 		Labels: map[string]string{
 			"student_name": task.StudentName,
 		},
+		StopTimeout: task.Timeout,
 	}, nil, nil, task.ID)
 	if err != nil {
-		return "", errors.Wrap(err, ErrFailedToCreateTask.Error())
+		return errors.Wrap(err, ErrFailedToCreateTask.Error())
 	}
 
 	// assign id and time
 	task.ContainerID = resp.ID
 	t := time.Now()
 	task.CreatedTime = &t
+	task.Status = StatusPending
 
-	return resp.ID, nil
+	return nil
 }
 
 // StartTasks starts execution of all the given tasks (container IDs).
-func (d *DockerClient) StartTasks(ctx context.Context, taskIDs []string, db Database) error {
-	for _, id := range taskIDs {
-		if err := d.cli.ContainerStart(ctx, id, types.ContainerStartOptions{}); err != nil {
+func (d *DockerClient) StartTasks(ctx context.Context, taskList []*Task, db Database) error {
+	for _, task := range taskList {
+		if err := d.cli.ContainerStart(ctx, task.ContainerID, types.ContainerStartOptions{}); err != nil {
 			return errors.Wrap(err, ErrFailedToStartTask.Error())
 		}
 		// update db
-		t, err := db.GetTaskByID(ctx, id)
-		if err != nil {
-			return err
-		}
-		t.Status = StatusStarted
-		if err := db.UpdateTask(ctx, t); err != nil {
-			return err
+		task.Status = StatusStarted
+		if err := db.UpdateTask(ctx, task); err != nil {
+			return errors.Wrap(err, ErrFailedToUpdateTask.Error())
 		}
 	}
 	return nil
 }
 
 // EndTask stops the execution of the task and remove its container from the host.
-func (d *DockerClient) EndTask(ctx context.Context, taskID string) error {
-	return d.cli.ContainerRemove(ctx, taskID, types.ContainerRemoveOptions{})
+func (d *DockerClient) EndTask(ctx context.Context, taskID string, db Database) error {
+	task, err := db.GetTaskByID(ctx, taskID)
+	if err != nil {
+		return errors.Wrap(err, ErrTaskNotFound.Error())
+	}
+
+	return d.cli.ContainerRemove(ctx, task.ContainerID, types.ContainerRemoveOptions{})
 }
 
 // TaskOutput retrieves the stdout of the task from the container.
-func (d *DockerClient) TaskOutput(ctx context.Context, id string) ([]byte, error) {
-	out, err := d.cli.ContainerLogs(ctx, id, types.ContainerLogsOptions{ShowStdout: true})
+func (d *DockerClient) TaskOutput(ctx context.Context, taskID string, db Database) ([]byte, error) {
+	task, err := db.GetTaskByID(ctx, taskID)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrTaskNotFound.Error())
+	}
+
+	out, err := d.cli.ContainerLogs(ctx, task.ContainerID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		return nil, err
 	}

@@ -13,6 +13,7 @@ var (
 	// errors
 	ErrCannotBeEmpty     = errors.New("field cannot be empty")
 	ErrInvalidFile       = errors.New("unable to parse file")
+	ErrInvalidTimeout    = errors.New("invalid timeout: timeout has to be a positive non-zero number")
 	ErrMissingDockerFile = errors.New("missing Dockerfile")
 	ErrMissingRunScript  = errors.New("missing run script")
 	// regex
@@ -49,6 +50,10 @@ func (m *Task) Validate() error {
 
 	if len(m.GetStudentName()) == 0 {
 		return ErrCannotBeEmpty
+	}
+
+	if m.GetTimeout() <= 0 {
+		return ErrInvalidTimeout
 	}
 
 	return nil

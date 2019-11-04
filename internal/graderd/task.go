@@ -24,7 +24,9 @@ type Task struct {
 	StudentName  string
 	Urn          string
 	ZipKey       string
-	Status       Status
+	// Timeout to stop a container in seconds.
+	Timeout *int
+	Status  Status
 	// CreatedTime is the time when the container is created for this task.
 	CreatedTime *time.Time
 }
@@ -32,12 +34,14 @@ type Task struct {
 type Status int
 
 // NewTask creates a task.
-func NewTask(assignmentID, urn, zip, studentName string) *Task {
+func NewTask(assignmentID, urn, zip, studentName string, timeout int32) *Task {
+	to := int(timeout)
 	t := &Task{
 		AssignmentID: assignmentID,
 		Urn:          urn,
 		ZipKey:       zip,
 		StudentName:  studentName,
+		Timeout:      &to,
 	}
 	t.ID = t.Name()
 	return t
