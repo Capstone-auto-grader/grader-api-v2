@@ -73,7 +73,7 @@ func TestDockerClient_CreateTasks(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
 			d := graderd.NewDockerClient(test.host, test.version)
-			db := graderd.NewMockDatabase()
+			db := graderd.NewMemoryDB()
 			ctx := context.Background()
 			// create tasks
 			err := d.CreateTasks(ctx, test.tasks, db)
@@ -116,7 +116,7 @@ func TestDockerClient_CreateAndStartTasks(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
 			d := graderd.NewDockerClient(test.host, test.version)
-			db := graderd.NewMockDatabase()
+			db := graderd.NewMemoryDB()
 			ctx := context.Background()
 			// create tasks
 			err := d.CreateTasks(ctx, test.tasks, db)

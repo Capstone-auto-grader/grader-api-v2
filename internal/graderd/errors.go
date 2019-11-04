@@ -11,7 +11,7 @@ var (
 	ErrTaskNotFound       = errors.New("task not found")
 	ErrFailedToCreateTask = errors.New("failed to create task")
 	ErrFailedToStartTask  = errors.New("failed to start task")
-	ErrFailedToStopTask   = errors.New("failed to stop task")
+	ErrFailedToUpdateTask = errors.New("failed to update task")
 	ErrFailedToBuildImage = errors.New("failed to build image")
 )
 

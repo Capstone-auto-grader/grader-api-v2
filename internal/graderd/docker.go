@@ -65,7 +65,10 @@ func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string, db Da
 		if err := db.UpdateTask(ctx, t); err != nil {
 			return nil, err
 		}
-		taskList = append(taskList, t)
+		// Make sure this task belongs to this assignment.
+		if t.AssignmentID == assignmentID {
+			taskList = append(taskList, t)
+		}
 	}
 	return taskList, nil
 }
@@ -80,7 +83,7 @@ func (d *DockerClient) CreateTasks(ctx context.Context, taskList []*Task, db Dat
 	}
 	// update database
 	if err := db.PutTasks(ctx, taskList); err != nil {
-		return err
+		return errors.Wrap(err, ErrFailedToUpdateTask.Error())
 	}
 
 	return nil
@@ -117,7 +120,7 @@ func (d *DockerClient) StartTasks(ctx context.Context, taskList []*Task, db Data
 		// update db
 		task.Status = StatusStarted
 		if err := db.UpdateTask(ctx, task); err != nil {
-			return err
+			return errors.Wrap(err, ErrFailedToUpdateTask.Error())
 		}
 	}
 	return nil
@@ -127,7 +130,7 @@ func (d *DockerClient) StartTasks(ctx context.Context, taskList []*Task, db Data
 func (d *DockerClient) EndTask(ctx context.Context, taskID string, db Database) error {
 	task, err := db.GetTaskByID(ctx, taskID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, ErrTaskNotFound.Error())
 	}
 
 	return d.cli.ContainerRemove(ctx, task.ContainerID, types.ContainerRemoveOptions{})
@@ -135,7 +138,12 @@ func (d *DockerClient) EndTask(ctx context.Context, taskID string, db Database) 
 
 // TaskOutput retrieves the stdout of the task from the container.
 func (d *DockerClient) TaskOutput(ctx context.Context, taskID string, db Database) ([]byte, error) {
-	out, err := d.cli.ContainerLogs(ctx, taskID, types.ContainerLogsOptions{ShowStdout: true})
+	task, err := db.GetTaskByID(ctx, taskID)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrTaskNotFound.Error())
+	}
+
+	out, err := d.cli.ContainerLogs(ctx, task.ContainerID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		return nil, err
 	}
