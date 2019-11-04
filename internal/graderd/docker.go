@@ -55,19 +55,19 @@ func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string, db Da
 		return nil, err
 	}
 
-	var taskList []*Task
+	taskList, err := db.GetTasksByAssignment(ctx, assignmentID)
+	if err != nil {
+		return nil, errors.Wrap(err, ErrAssignmentNotFound.Error())
+	}
+
 	for _, c := range containers {
-		t, err := db.GetTaskByID(ctx, c.ID)
-		if err != nil {
-			return nil, errors.Wrap(err, ErrTaskNotFound.Error())
-		}
-		t.Status = ParseContainerState(c.State)
-		if err := db.UpdateTask(ctx, t); err != nil {
-			return nil, err
-		}
-		// Make sure this task belongs to this assignment.
-		if t.AssignmentID == assignmentID {
-			taskList = append(taskList, t)
+		for _, t := range taskList {
+			if t.ContainerID == c.ID {
+				t.Status = ParseContainerState(c.State)
+				if err := db.UpdateTask(ctx, t); err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
 	return taskList, nil

@@ -52,3 +52,12 @@ func (m *MemoryDB) PutTasks(ctx context.Context, taskList []*Task) error {
 	}
 	return nil
 }
+
+func (m *MemoryDB) GetTasksByAssignment(ctx context.Context, assignmentID string) ([]*Task, error) {
+	taskList, ok := m.assignmentTasks[assignmentID]
+	if !ok {
+		return nil, sql.ErrNoRows
+	}
+
+	return taskList, nil
+}

@@ -1,6 +1,8 @@
 package graderd
 
-import "context"
+import (
+	"context"
+)
 
 type PGClient struct {
 }
@@ -18,5 +20,9 @@ func (PGClient) UpdateTask(ctx context.Context, task *Task) error {
 }
 
 func (PGClient) PutTasks(ctx context.Context, taskList []*Task) error {
+	panic("implement me")
+}
+
+func (PGClient) GetTasksByAssignment(ctx context.Context, assignmentID string) ([]*Task, error) {
 	panic("implement me")
 }
