@@ -18,15 +18,15 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 	// Create tasks.
 	taskList := make([]*Task, 0, len(req.GetTasks()))
 	for _, t := range req.GetTasks() {
-		task := NewTask(t.GetAssignmentId(), t.GetUrnKey(), t.GetZipKey(), t.GetStudentName())
+		task := NewTask(t.GetAssignmentId(), t.GetUrnKey(), t.GetZipKey(), t.GetStudentName(), t.GetTimeout())
 		taskList = append(taskList, task)
 	}
-	ids, err := s.schr.CreateTasks(ctx, taskList, s.db)
+	err := s.schr.CreateTasks(ctx, taskList, s.db)
 	if err != nil {
 		return nil, grpcError(err)
 	}
 	// Start tasks.
-	if err := s.schr.StartTasks(ctx, ids, s.db); err != nil {
+	if err := s.schr.StartTasks(ctx, taskList, s.db); err != nil {
 		return nil, grpcError(err)
 	}
 

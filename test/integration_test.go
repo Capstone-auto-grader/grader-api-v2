@@ -27,7 +27,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 	}{
 		{
 			desc:      "mock: one assignment, one submission",
-			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), graderd.NewMockDatabase(), ""),
 			imageName: "assignment1",
 			imageTar:  createHelloWorldImage(),
 			tasks:     createNTasks(1),
@@ -35,7 +35,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 		},
 		{
 			desc:      "mock: failed to create assignment (no image)",
-			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), graderd.NewMockDatabase(), ""),
 			imageName: "assignment1",
 			imageTar:  []byte{},
 			tasks:     createNTasks(1),
@@ -43,7 +43,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 		},
 		{
 			desc:      "mock: one assignment, one invalid submission",
-			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), ""),
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), graderd.NewMockDatabase(), ""),
 			imageName: "assignment1",
 			imageTar:  createValidImage(),
 			tasks:     append(createNTasks(1), &pb.Task{}),
@@ -124,6 +124,7 @@ func createNTasks(n int) []*pb.Task {
 			UrnKey:       fmt.Sprintf("some:%d:urn:key", i),
 			ZipKey:       fmt.Sprintf("some:%d:zip:key", i),
 			StudentName:  fmt.Sprintf("some kid %d", i),
+			Timeout:      30,
 		})
 	}
 

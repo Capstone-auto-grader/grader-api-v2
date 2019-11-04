@@ -76,17 +76,13 @@ func TestDockerClient_CreateTasks(t *testing.T) {
 			db := graderd.NewMockDatabase()
 			ctx := context.Background()
 			// create tasks
-			ids, err := d.CreateTasks(ctx, test.tasks, db)
+			err := d.CreateTasks(ctx, test.tasks, db)
 			if err != nil {
 				if want, got := test.err, err; !reflect.DeepEqual(want, got) {
 					t.Errorf("unexpected error:\n- want: %+v\n- got: %+v\n", want, got)
 				}
 				return
 			}
-			if want, got := len(test.tasks), len(ids); want != got {
-				t.Errorf("unexpected number of IDs:\n- want: %+v\n- got: %+v\n", want, got)
-			}
-			t.Logf("\n- Container IDs: %+v", ids)
 		})
 	}
 }
@@ -123,19 +119,15 @@ func TestDockerClient_CreateAndStartTasks(t *testing.T) {
 			db := graderd.NewMockDatabase()
 			ctx := context.Background()
 			// create tasks
-			ids, err := d.CreateTasks(ctx, test.tasks, db)
+			err := d.CreateTasks(ctx, test.tasks, db)
 			if err != nil {
 				if want, got := test.err, err; !reflect.DeepEqual(want, got) {
 					t.Errorf("unexpected error:\n- want: %+v\n- got: %+v\n", want, got)
 				}
 				return
 			}
-			if want, got := len(test.tasks), len(ids); want != got {
-				t.Errorf("unexpected number of IDs:\n- want: %+v\n- got: %+v\n", want, got)
-			}
-			t.Logf("\n- Container IDs: %+v", ids)
 			// start tasks
-			err = d.StartTasks(ctx, ids, db)
+			err = d.StartTasks(ctx, test.tasks, db)
 			if err != nil {
 				if want, got := test.err, err; !reflect.DeepEqual(want, got) {
 					t.Errorf("unexpected error:\n- want: %+v\n- got: %+v\n", want, got)
