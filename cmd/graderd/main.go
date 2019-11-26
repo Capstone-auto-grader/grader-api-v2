@@ -54,7 +54,7 @@ func serve() error {
 		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
-	graderService := graderd.NewGraderService(graderd.NewDockerClient(*dockerAddr, *dockerVersion), graderd.NewPGDatabase(*databaseAddr), *webAddr)
+	graderService := graderd.NewGraderService(graderd.NewDockerClient(*dockerAddr, *dockerVersion), graderd.NewPGDatabase(*databaseAddr), *webAddr, 0)
 	pb.RegisterGraderServer(grpcServer, graderService)
 
 	endpoint := *grpcAddr + *grpcPort

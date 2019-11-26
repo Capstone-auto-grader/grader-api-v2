@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/urfave/cli"
 
 	pb "github.com/Capstone-auto-grader/grader-api-v2/graderpb"
 )
 
-// Submit builds a cli.Command for calling the SubmitForGrading endpoint.
-func Submit() cli.Command {
+// SubmitForGrading builds a cli.Command for calling the SubmitForGrading endpoint.
+func SubmitForGrading() cli.Command {
 	command := cli.Command{
 		Name:        "submit",
 		Description: "submit sends an assignment to be graded to the grader API",
@@ -31,14 +32,14 @@ func Submit() cli.Command {
 				Usage: "student's name",
 			},
 		},
-		Action: SubmitAction(),
+		Action: SubmitForGradingAction(),
 	}
 
 	return command
 }
 
-// SubmitAction builds the cli.ActionFunc for actually calling the endpoint with the gRPC client.
-func SubmitAction() cli.ActionFunc {
+// SubmitForGradingAction builds the cli.ActionFunc for actually calling the endpoint with the gRPC client.
+func SubmitForGradingAction() cli.ActionFunc {
 	return func(c *cli.Context) error {
 		ctx := context.Background()
 		addr := c.GlobalString("addr")
@@ -56,6 +57,7 @@ func SubmitAction() cli.ActionFunc {
 					UrnKey:       urn,
 					ZipKey:       zipkey,
 					StudentName:  name,
+					Timeout:      30,
 				},
 			},
 		}

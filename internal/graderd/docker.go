@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"time"
 
@@ -137,16 +136,18 @@ func (d *DockerClient) EndTask(ctx context.Context, taskID string, db Database) 
 }
 
 // TaskOutput retrieves the stdout of the task from the container.
-func (d *DockerClient) TaskOutput(ctx context.Context, taskID string, db Database) ([]byte, error) {
+func (d *DockerClient) TaskOutput(ctx context.Context, taskID string, db Database, results chan *Task) error {
 	task, err := db.GetTaskByID(ctx, taskID)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrTaskNotFound.Error())
+		return errors.Wrap(err, ErrTaskNotFound.Error())
 	}
 
 	out, err := d.cli.ContainerLogs(ctx, task.ContainerID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		return nil, err
+		return err
 	}
+	task.Output = out
+	results <- task
 
-	return ioutil.ReadAll(out)
+	return nil
 }

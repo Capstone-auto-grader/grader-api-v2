@@ -1,7 +1,10 @@
 package graderd
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"strings"
 	"time"
 )
@@ -24,6 +27,8 @@ type Task struct {
 	StudentName  string
 	Urn          string
 	ZipKey       string
+	// Output is the raw output of the container job.
+	Output io.ReadCloser
 	// Timeout to stop a container in seconds.
 	Timeout *int
 	Status  Status
@@ -52,4 +57,22 @@ func (t *Task) Name() string {
 	name := strings.ReplaceAll(t.StudentName, " ", "_")
 
 	return fmt.Sprintf("%s_%s_%s", name, t.AssignmentID, t.Urn)
+}
+
+func (t *Task) MarshalJSON() ([]byte, error) {
+	b, err := ioutil.ReadAll(t.Output)
+	if err != nil {
+		return nil, err
+	}
+	defer t.Output.Close()
+
+	return json.Marshal(&struct {
+		ID           string
+		AssignmentID string
+		Output       []byte
+	}{
+		ID:           t.ID,
+		AssignmentID: t.AssignmentID,
+		Output:       b,
+	})
 }

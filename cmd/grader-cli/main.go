@@ -32,7 +32,8 @@ func main() {
 		},
 	}
 	app.Commands = cli.Commands{
-		Submit(),
+		SubmitForGrading(),
+		CreateAssignment(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
