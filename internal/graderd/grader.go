@@ -4,7 +4,7 @@ type Service struct {
 	schr    Scheduler
 	db      Database
 	webAddr string
-	results chan *Task
+	maxJobs int
 }
 
 func NewGraderService(schr Scheduler, db Database, webAddr string, maxJobs int) *Service {
@@ -12,6 +12,6 @@ func NewGraderService(schr Scheduler, db Database, webAddr string, maxJobs int) 
 		schr:    schr,
 		db:      db,
 		webAddr: webAddr,
-		results: make(chan *Task, maxJobs),
+		maxJobs: maxJobs,
 	}
 }

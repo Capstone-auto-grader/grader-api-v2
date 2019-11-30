@@ -29,6 +29,8 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 	if err := s.schr.StartTasks(ctx, taskList, s.db); err != nil {
 		return nil, grpcError(err)
 	}
+	// Returns results once they are ready.
+	go s.ReturnResults(taskList)
 
 	return &graderpb.SubmitForGradingResponse{}, nil
 }
