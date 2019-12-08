@@ -2,35 +2,32 @@ package graderd
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
-	"log"
 	"net/http"
-	"sync"
+
+	"github.com/cenkalti/backoff/v3"
 )
 
-func (s *Service) ReturnResults(taskList []*Task) {
-	wg := &sync.WaitGroup{}
-	wg.Add(len(taskList))
-	for _, task := range taskList {
-		go func(task *Task) {
-			t, err := s.schr.TaskOutput(context.Background(), task, s.db)
-			if err != nil {
-				log.Printf("failed to retreive output: %+v", err)
-				return
-			}
-			b, err := json.Marshal(t)
-			if err != nil {
-				log.Printf("failed to marshal result: %+v", err)
-				return
-			}
+// ReturnResults return results back to $WEB_API.
+// If an error is found returning result to host,
+// it will retry with exponential backoff.
+func (s *Service) ReturnResults() {
+	for r := range s.results {
+		b, err := json.Marshal(r)
+		if err != nil {
+			// We can silence the error because it is impossible to error here.
+			b, _ = json.Marshal(struct {
+				Error   error
+				Message string
+			}{
+				Error:   err,
+				Message: "Unable to return results, please retry.",
+			})
+		}
+		// Retry with exponential backoff.
+		_ = backoff.Retry(func() error {
 			_, err = http.Post(s.webAddr, "application/json", bytes.NewReader(b))
-			if err != nil {
-				log.Printf("failed to return result: %+v", err)
-				return
-			}
-			defer wg.Done()
-		}(task)
+			return err
+		}, backoff.NewExponentialBackOff())
 	}
-	wg.Wait()
 }
