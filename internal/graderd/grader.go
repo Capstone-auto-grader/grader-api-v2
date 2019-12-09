@@ -4,14 +4,12 @@ type Service struct {
 	schr    Scheduler
 	db      Database
 	webAddr string
-	maxJobs int
 }
 
-func NewGraderService(schr Scheduler, db Database, webAddr string, maxJobs int) *Service {
+func NewGraderService(schr Scheduler, db Database, webAddr string) *Service {
 	return &Service{
 		schr:    schr,
 		db:      db,
 		webAddr: webAddr,
-		maxJobs: maxJobs,
 	}
 }
