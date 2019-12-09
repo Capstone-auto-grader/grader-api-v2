@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.47.0 // indirect
 	cloud.google.com/go/bigquery v1.1.0 // indirect
 	cloud.google.com/go/storage v1.1.1 // indirect
-	github.com/cenkalti/backoff/v3 v3.1.1 // indirect
+	github.com/cenkalti/backoff/v3 v3.1.1
 	github.com/creack/pty v1.1.9 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1

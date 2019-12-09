@@ -57,7 +57,7 @@ func serve() error {
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
 	graderService := graderd.NewGraderService(
 		graderd.NewDockerClient(*dockerAddr, *dockerVersion),
-		graderd.NewPGDatabase(*databaseAddr),
+		graderd.NewMemoryDB(),
 		*webAddr,
 	)
 	pb.RegisterGraderServer(grpcServer, graderService)
