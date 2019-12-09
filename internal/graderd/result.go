@@ -19,8 +19,9 @@ func (s *Service) ReturnResults(taskList []*Task) {
 	wg.Add(len(taskList))
 	for _, task := range taskList {
 		go func(task *Task) {
+			ctx := context.Background()
 			// Retrieve task's output.
-			t, err := s.schr.TaskOutput(context.Background(), task, s.db)
+			t, err := s.schr.TaskOutput(ctx, task, s.db)
 			if err != nil {
 				log.Printf("failed to retreive output: %+v", err)
 				return
@@ -35,7 +36,7 @@ func (s *Service) ReturnResults(taskList []*Task) {
 				_, err = http.Post(s.webAddr, "application/json", bytes.NewReader(b))
 				return err
 			}, backoff.NewExponentialBackOff())
-			defer wg.Done()
+			wg.Done()
 		}(task)
 	}
 	wg.Wait()
