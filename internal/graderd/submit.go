@@ -21,14 +21,17 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *graderpb.SubmitForG
 		task := NewTask(t.GetAssignmentId(), t.GetUrnKey(), t.GetZipKey(), t.GetStudentName(), t.GetTimeout())
 		taskList = append(taskList, task)
 	}
+
 	err := s.schr.CreateTasks(ctx, taskList, s.db)
 	if err != nil {
 		return nil, grpcError(err)
 	}
+
 	// Start tasks.
 	if err := s.schr.StartTasks(ctx, taskList, s.db); err != nil {
 		return nil, grpcError(err)
 	}
+
 	// Returns results once they are ready.
 	go s.ReturnResults(taskList)
 
