@@ -1,11 +1,12 @@
-// grader-cli is a wrapper around the GraderClient gRPC client provided by graderpb.
+// Grader-cli is a client for grader API provided by grader.pb.go.
 //
 // Usage
 //
-// 		go build -o *.go grader-cli
-//		./grader-cli
+//	go build -o *.go grader-cli
+//	./grader-cli
 //
-// This file provides all the definition of flags and commands for the grader-cli.
+// This client currently supports the following endpoints:
+//	SubmitForGrading()
 package main
 
 import (
