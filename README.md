@@ -34,12 +34,24 @@ make build
 
 ## Clients for `graderd`
 
-### Using gRPC client
+### Using gRPC client with command line
 ```
 ./bin/grader-cli [-a address:port] [-c public cert] submit [-u assignment-urn] [-z zip-key] [-n student's name]
 ```
 
-## Using `curl`
+### Using gRPC client with generated stub
+```go
+conn, err := grpc.DialContext(ctx, addr, grpc.WithTransportCredentials(clientCert),
+)
+if err != nil {
+    // ...
+}
+
+// Create client.
+client := pb.NewGraderClient(conn)
+```
+
+### Using `curl`
 ```
 curl -X POST \
 -k https://localhost:9090/api/submit \
