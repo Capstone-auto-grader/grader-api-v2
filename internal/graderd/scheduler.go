@@ -7,19 +7,40 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Scheduler is the interface that must be implemented by a scheduler.
+//
+// Scheduler implementation is encouraged to carry the given context.Context
+// through out the whole execution process for better tracing.
 type Scheduler interface {
+	// CreateImage creates a docker image using the given Dockerfile.
+	// This image should be retrievable in the future.
+	//
+	// Returns an error if failed to create image.
 	CreateImage(ctx context.Context, imageName string, imageTar []byte) error
 
+	// ListTasks lists all tasks related to the given assignment.
 	ListTasks(ctx context.Context, assignmentID string, db Database) ([]*Task, error)
+
+	// CreateTasks creates all tasks on the host.
+	//
+	// Returns an error if failed to create any of the tasks.
 	CreateTasks(ctx context.Context, taskList []*Task, db Database) error
+
+	// StartTasks starts execution of the created tasks.
+	//
+	// Tasks MUST be created before it can be started, otherwise an ErrTaskNotCreated
+	// error will be raised.
 	StartTasks(ctx context.Context, taskList []*Task, db Database) error
+
+	// EndTask ends a given task.
 	EndTask(ctx context.Context, taskID string, db Database) error
 
+	// TaskOutput is a blocking call that returns the stdout of a task (container).
 	TaskOutput(ctx context.Context, taskID string, db Database) ([]byte, error)
 }
 
-type MockScheduler struct {
-}
+// MockScheduler is a mock implementation of Scheduler.
+type MockScheduler struct{}
 
 func NewMockScheduler() *MockScheduler {
 	return &MockScheduler{}

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 )
 
-// MemoryDB is an in-memory database.
+// MemoryDB is an in-memory database implementing Database.
 type MemoryDB struct {
 	assignmentIDs   []string
 	assignmentTasks map[string][]*Task
@@ -29,7 +29,7 @@ func (m *MemoryDB) GetTaskByID(ctx context.Context, taskID string) (*Task, error
 }
 
 func (m *MemoryDB) UpdateTask(ctx context.Context, task *Task) error {
-	t, ok := m.tasksTable[task.Name()]
+	t, ok := m.tasksTable[task.ID]
 	if !ok {
 		return sql.ErrNoRows
 	}
@@ -47,7 +47,7 @@ func (m *MemoryDB) UpdateTask(ctx context.Context, task *Task) error {
 
 func (m *MemoryDB) PutTasks(ctx context.Context, taskList []*Task) error {
 	for _, t := range taskList {
-		m.tasksTable[t.Name()] = t
+		m.tasksTable[t.ID] = t
 		m.assignmentTasks[t.AssignmentID] = append(m.assignmentTasks[t.AssignmentID], t)
 	}
 	return nil

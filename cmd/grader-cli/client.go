@@ -1,5 +1,3 @@
-// client.go generates a gRPC client using the protobuf stub,
-// the server address, and the public cert.
 package main
 
 import (
@@ -12,7 +10,8 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func NewClient(certFile, addr string) pb.GraderClient {
+// NewClient generates a gRPC client with the server address, and the public cert.
+func NewClient(certFile string, addr string) pb.GraderClient {
 	ctx := context.Background()
 
 	clientCert, err := credentials.NewClientTLSFromFile(certFile, addr)

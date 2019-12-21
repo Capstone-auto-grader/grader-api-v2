@@ -16,12 +16,15 @@ var (
 	ErrInvalidTimeout    = errors.New("invalid timeout: timeout has to be a positive non-zero number")
 	ErrMissingDockerFile = errors.New("missing Dockerfile")
 	ErrMissingRunScript  = errors.New("missing run script")
-	// regex
+
+	// PatternDockerFile defines the pattern for matching a Dockerfile.
 	PatternDockerFile = regexp.MustCompile(`Dockerfile`)
-	PatternRunScript  = regexp.MustCompile(`.\.sh`)
+	// PatternRunScript defines the pattern for matching a script file.
+	PatternRunScript = regexp.MustCompile(`.\.sh`)
 )
 
 // Validate validates a SubmitForGradingRequest.
+//
 // Currently, it only checks if all the fields are provided.
 func (m *SubmitForGradingRequest) Validate() error {
 	if m.GetTasks() == nil {
@@ -38,7 +41,8 @@ func (m *SubmitForGradingRequest) Validate() error {
 }
 
 // Validate validates a Task.
-// Currently, it only checks if all the fields are provided.
+//
+// Currently, it only checks if all the fields are non empty.
 func (m *Task) Validate() error {
 	if len(m.GetUrnKey()) == 0 {
 		return ErrCannotBeEmpty
@@ -60,10 +64,11 @@ func (m *Task) Validate() error {
 }
 
 // Validate validates a CreateAssignmentRequest.
+//
 // Currently, it checks:
-// - if it is a tar
-// - if the tar contains a Dockerfile
-// - if the tar contains a script
+// 	- if it is a tar
+// 	- if the tar contains a Dockerfile
+// 	- if the tar contains a script
 func (m *CreateAssignmentRequest) Validate() error {
 	if m.GetImageName() == "" {
 		return ErrCannotBeEmpty
@@ -83,19 +88,22 @@ func (m *CreateAssignmentRequest) Validate() error {
 		if err != nil {
 			return errors.Wrap(err, ErrInvalidFile.Error())
 		}
-		f := []byte(h.Name)
-		if PatternDockerFile.Match(f) {
+
+		if PatternDockerFile.Match([]byte(h.Name)) {
 			dok = true
 		}
-		if PatternRunScript.Match(f) {
+
+		if PatternRunScript.Match([]byte(h.Name)) {
 			sok = true
 		}
 	}
-	// check if it has Dockerfile
+
+	// Checks if it has Dockerfile.
 	if !dok {
 		return ErrMissingDockerFile
 	}
-	// check if it has run script
+
+	// Checks if it has run script.
 	if !sok {
 		return ErrMissingRunScript
 	}

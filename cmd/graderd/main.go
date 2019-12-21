@@ -1,16 +1,16 @@
-// graderd is the entry-point for starting the grader API service.
+// Graderd is a server implementation for grader API.
 //
-// This file creates a gRPC endpoint and a http endpoint that uses the same given port.
+// This file exposes a gRPC endpoint and a REST endpoint that serves the grader API.
 //
-// Incoming http GET/POST requests are translated into gRPC calls and reverse-proxied
-// to the gRPC handler.
+// Incoming REST requests are translated into gRPC calls and reverse-proxied into the gRPC handler.
+// On the other hand, gRPC calls are directly handled by the gRPC handler.
 //
-// gRPC calls are directly handled by the gRPC handler.
+// Note: gRPC and REST endpoint uses the same port.
 //
 // Usage
 //
-// 		go build -o *.go graderd
-//		./graderd
+// 	go build -o *.go graderd
+//	./graderd
 package main
 
 import (

@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// DockerClient is an implementation of scheduler that talks to a docker host.
 type DockerClient struct {
 	cli *client.Client
 }
@@ -73,6 +74,9 @@ func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string, db Da
 	return taskList, nil
 }
 
+// CreateTasks creates all given tasks on the host as containers.
+//
+// Freshly created containers will be in a stopped state.
 func (d *DockerClient) CreateTasks(ctx context.Context, taskList []*Task, db Database) error {
 	// create tasks
 	for _, t := range taskList {
