@@ -12,8 +12,15 @@ import (
 // passed as values, not as reference
 // TODO: Error handling for not found
 type SyncMap struct {
-	mu sync.RWMutex
+	mu *sync.RWMutex
 	mp map[string]*grader_task.Task
+}
+
+func NewSyncMap() *SyncMap{
+	return &SyncMap{
+		mu: &sync.RWMutex{},
+		mp: make(map[string]*grader_task.Task),
+	}
 }
 
 // TODO: decide where to handle duplicate requests

@@ -53,7 +53,7 @@ func SubmitAction() cli.ActionFunc {
 			Tasks: []*pb.Task{
 				{
 					AssignmentId: id,
-					UrnKey:       urn,
+					TestKey:       urn,
 					ZipKey:       zipkey,
 					StudentName:  name,
 				},

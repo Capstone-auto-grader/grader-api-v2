@@ -41,7 +41,7 @@ func (m *MemoryDB) UpdateTask(ctx context.Context, task *grader_task.Task) error
 	t.TestUri = task.TestUri
 	t.SubmUri = task.SubmUri
 	t.StudentName = task.StudentName
-	t.AssignmentID = task.AssignmentID
+	t.ImageID = task.ImageID
 
 	return nil
 }
@@ -49,7 +49,7 @@ func (m *MemoryDB) UpdateTask(ctx context.Context, task *grader_task.Task) error
 func (m *MemoryDB) PutTasks(ctx context.Context, taskList []*grader_task.Task) error {
 	for _, t := range taskList {
 		m.tasksTable[t.Name()] = t
-		m.assignmentTasks[t.AssignmentID] = append(m.assignmentTasks[t.AssignmentID], t)
+		m.assignmentTasks[t.ImageID] = append(m.assignmentTasks[t.ImageID], t)
 	}
 	return nil
 }

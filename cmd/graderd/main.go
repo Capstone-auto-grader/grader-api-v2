@@ -17,6 +17,7 @@ import (
 	"context"
 	"flag"
 	"github.com/Capstone-auto-grader/grader-api-v2/internal/docker-client"
+	sync_map "github.com/Capstone-auto-grader/grader-api-v2/internal/sync-map"
 	"log"
 	"net/http"
 	"strings"
@@ -55,7 +56,7 @@ func serve() error {
 		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
-	graderService := graderd.NewGraderService(docker_client.NewDockerClient(*dockerAddr, *dockerVersion), graderd.NewPGDatabase(*databaseAddr), *webAddr)
+	graderService := graderd.NewGraderService(docker_client.NewDockerClient(*dockerAddr, *dockerVersion, sync_map.NewSyncMap(), 2),  *webAddr)
 	pb.RegisterGraderServer(grpcServer, graderService)
 
 	endpoint := *grpcAddr + *grpcPort
