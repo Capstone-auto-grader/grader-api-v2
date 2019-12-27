@@ -18,20 +18,32 @@ import (
 type DockerClient struct {
 	cli *client.Client
 	mp *sync_map.SyncMap
+	queue chan<- string
 }
 
 // NewDockerClient creates a docker client for interacting with the docker host.
-func NewDockerClient(host string, version string,mp *sync_map.SyncMap) *DockerClient {
+func NewDockerClient(host string, version string,mp *sync_map.SyncMap, numWorkers int) *DockerClient {
 	cli, err := client.NewClient(host, version, nil, nil)
+	queue := make(chan string)
 	if err != nil {
 		log.Fatalln(err)
 		return nil
 	}
 
-	return &DockerClient{
+
+
+	dockerClient := &DockerClient{
 		cli: cli,
 		mp: mp,
+		queue: queue,
 	}
+
+	for i := 0; i < numWorkers; i++{
+		go func() {
+			WorkerEventLoop(queue, dockerClient, mp)
+		}()
+	}
+	return dockerClient
 }
 
 // CreateAssignment with the given dockerfile and script, returns a unique assignment id.
