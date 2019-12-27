@@ -13,17 +13,17 @@ import (
 // TODO: Error handling for not found
 type SyncMap struct {
 	mu sync.RWMutex
-	mp map[string]grader_task.Task
+	mp map[string]*grader_task.Task
 }
 
 // TODO: decide where to handle duplicate requests
-func (m *SyncMap) StoreTask(task grader_task.Task) {
+func (m *SyncMap) StoreTask(task *grader_task.Task) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.mp[task.ID] = task
 }
 
-func (m *SyncMap) GetTask(taskID string) (grader_task.Task, error) {
+func (m *SyncMap) GetTask(taskID string) (*grader_task.Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	if val, ok := m.mp[taskID]; ok {
@@ -34,6 +34,7 @@ func (m *SyncMap) GetTask(taskID string) (grader_task.Task, error) {
 }
 
 // TODO: make sure that duplicate requests don't prompt anomalous state
+// TODO: Just deal with pointers
 func (m *SyncMap) UpdateTaskContainerID(taskID string, containerId string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -42,6 +43,7 @@ func (m *SyncMap) UpdateTaskContainerID(taskID string, containerId string) {
 	m.mp[taskID] = t
 }
 
+//TODO: JUST DEAL WITH POINTERS
 func (m *SyncMap) UpdateStatus(taskID string, status grader_task.Status, checkStatus bool) error{
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -65,7 +67,8 @@ func (m *SyncMap) Enumerate() map[string]grader_task.Task {
 	// as long as the integrity of the internal map is preserved
 	ret := make(map[string]grader_task.Task)
 	for k,v := range m.mp {
-		ret[k] = v
+		newval := *v
+		ret[k] = newval
 	}
 	return ret
 }

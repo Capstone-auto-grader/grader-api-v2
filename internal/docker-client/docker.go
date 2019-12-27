@@ -51,21 +51,21 @@ func (d *DockerClient) CreateImage(ctx context.Context, imageName string, imageT
 }
 
 // ListTasks lists all the active tasks associated with the assignment id in the docker host.
-func (d *DockerClient) ListTasks(ctx context.Context, assignmentID string) ([]grader_task.Task, error) {
+func (d *DockerClient) ListTasks(ctx context.Context) ([]*grader_task.Task, error) {
 	containers, err := d.cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	tasks := d.mp.Enumerate()
-	taskList := make([]grader_task.Task, 0)
+	taskList := make([]*grader_task.Task, 0)
 
 	for _, c := range containers {
 		for _, t := range tasks {
 			if t.ContainerID == c.ID {
 				status := graderd.ParseContainerState(c.State)
 				if status == grader_task.StatusStarted {
-					taskList = append(taskList, t)
+					taskList = append(taskList, &t)
 				}
 			}
 		}

@@ -8,6 +8,14 @@ import (
 	graderTask "github.com/Capstone-auto-grader/grader-api-v2/internal/grader-task"
 )
 
+type Scheduler interface {
+	CreateImage(ctx context.Context, imageName string, imageTar []byte) error
+	ListTasks(ctx context.Context) ([]*graderTask.Task, error)
+	StartTask(ctx context.Context, taskID string) error
+	EndTask(ctx context.Context, taskID string) error
+	TaskOutput(ctx context.Context, taskID string) ([]byte, error)
+}
+
 type MockScheduler struct {
 }
 
