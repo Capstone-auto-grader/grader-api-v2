@@ -37,11 +37,12 @@ message SubmitForGradingRequest {
 
 message Task {
     string assignment_id = 1;
-    string urn_key = 2;
+    string test_key = 2;
     string zip_key = 3;
     string student_name = 4;
     // Timeout is in seconds.
     int32 timeout = 5;
+    string callback_uri = 6;
 }
 
 message SubmitForGradingResponse {}

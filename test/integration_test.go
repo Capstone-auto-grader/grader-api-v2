@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/Capstone-auto-grader/grader-api-v2/internal/dockerdb"
 	"log"
 	"reflect"
 	"testing"
@@ -27,7 +28,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 	}{
 		{
 			desc:      "mock: one assignment, one submission",
-			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), graderd.NewMemoryDB(), ""),
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), dockerdb.NewMemoryDB(), ""),
 			imageName: "assignment1",
 			imageTar:  createHelloWorldImage(),
 			tasks:     createNTasks(1),
@@ -35,7 +36,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 		},
 		{
 			desc:      "mock: failed to create assignment (no image)",
-			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), graderd.NewMemoryDB(), ""),
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), dockerdb.NewMemoryDB(), ""),
 			imageName: "assignment1",
 			imageTar:  []byte{},
 			tasks:     createNTasks(1),
@@ -43,7 +44,7 @@ func TestCreateAssignmentAndGrade(t *testing.T) {
 		},
 		{
 			desc:      "mock: one assignment, one invalid submission",
-			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), graderd.NewMemoryDB(), ""),
+			srv:       graderd.NewGraderService(graderd.NewMockScheduler(), dockerdb.NewMemoryDB(), ""),
 			imageName: "assignment1",
 			imageTar:  createValidImage(),
 			tasks:     append(createNTasks(1), &pb.Task{}),

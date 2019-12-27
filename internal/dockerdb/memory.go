@@ -1,26 +1,27 @@
-package graderd
+package dockerdb
 
 import (
 	"context"
 	"database/sql"
+	"github.com/Capstone-auto-grader/grader-api-v2/internal/grader-task"
 )
 
 // MemoryDB is an in-memory database.
 type MemoryDB struct {
 	assignmentIDs   []string
-	assignmentTasks map[string][]*Task
-	tasksTable      map[string]*Task
+	assignmentTasks map[string][]*grader_task.Task
+	tasksTable      map[string]*grader_task.Task
 }
 
 func NewMemoryDB() *MemoryDB {
 	return &MemoryDB{
 		assignmentIDs:   make([]string, 0),
-		assignmentTasks: make(map[string][]*Task),
-		tasksTable:      make(map[string]*Task),
+		assignmentTasks: make(map[string][]*grader_task.Task),
+		tasksTable:      make(map[string]*grader_task.Task),
 	}
 }
 
-func (m *MemoryDB) GetTaskByID(ctx context.Context, taskID string) (*Task, error) {
+func (m *MemoryDB) GetTaskByID(ctx context.Context, taskID string) (*grader_task.Task, error) {
 	t, ok := m.tasksTable[taskID]
 	if !ok {
 		return nil, sql.ErrNoRows
@@ -28,7 +29,7 @@ func (m *MemoryDB) GetTaskByID(ctx context.Context, taskID string) (*Task, error
 	return t, nil
 }
 
-func (m *MemoryDB) UpdateTask(ctx context.Context, task *Task) error {
+func (m *MemoryDB) UpdateTask(ctx context.Context, task *grader_task.Task) error {
 	t, ok := m.tasksTable[task.Name()]
 	if !ok {
 		return sql.ErrNoRows
@@ -37,15 +38,15 @@ func (m *MemoryDB) UpdateTask(ctx context.Context, task *Task) error {
 	t.Status = task.Status
 	t.ContainerID = task.ContainerID
 	t.CreatedTime = task.CreatedTime
-	t.ZipKey = task.ZipKey
-	t.Urn = task.Urn
+	t.TestUri = task.TestUri
+	t.SubmUri = task.SubmUri
 	t.StudentName = task.StudentName
 	t.AssignmentID = task.AssignmentID
 
 	return nil
 }
 
-func (m *MemoryDB) PutTasks(ctx context.Context, taskList []*Task) error {
+func (m *MemoryDB) PutTasks(ctx context.Context, taskList []*grader_task.Task) error {
 	for _, t := range taskList {
 		m.tasksTable[t.Name()] = t
 		m.assignmentTasks[t.AssignmentID] = append(m.assignmentTasks[t.AssignmentID], t)
@@ -53,7 +54,7 @@ func (m *MemoryDB) PutTasks(ctx context.Context, taskList []*Task) error {
 	return nil
 }
 
-func (m *MemoryDB) GetTasksByAssignment(ctx context.Context, assignmentID string) ([]*Task, error) {
+func (m *MemoryDB) GetTasksByAssignment(ctx context.Context, assignmentID string) ([]*grader_task.Task, error) {
 	taskList, ok := m.assignmentTasks[assignmentID]
 	if !ok {
 		return nil, sql.ErrNoRows

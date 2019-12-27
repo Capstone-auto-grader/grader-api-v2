@@ -40,7 +40,7 @@ func (m *SubmitForGradingRequest) Validate() error {
 // Validate validates a Task.
 // Currently, it only checks if all the fields are provided.
 func (m *Task) Validate() error {
-	if len(m.GetUrnKey()) == 0 {
+	if len(m.GetTestKey()) == 0 {
 		return ErrCannotBeEmpty
 	}
 

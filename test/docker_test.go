@@ -2,11 +2,12 @@ package test
 
 import (
 	"context"
+	"github.com/Capstone-auto-grader/grader-api-v2/internal/docker-client"
+	db2 "github.com/Capstone-auto-grader/grader-api-v2/internal/dockerdb"
+	"github.com/Capstone-auto-grader/grader-api-v2/internal/grader-task"
 	"io/ioutil"
 	"reflect"
 	"testing"
-
-	"github.com/Capstone-auto-grader/grader-api-v2/internal/graderd"
 )
 
 func TestDockerClient_CreateAssignment(t *testing.T) {
@@ -30,7 +31,7 @@ func TestDockerClient_CreateAssignment(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			d := graderd.NewDockerClient(test.host, test.version)
+			d := docker_client.NewDockerClient(test.host, test.version)
 			ctx := context.Background()
 			// create assignment
 			err := d.CreateImage(ctx, test.imageName, test.imageTar)
@@ -50,20 +51,20 @@ func TestDockerClient_CreateTasks(t *testing.T) {
 		host      string
 		version   string
 		imageName string
-		tasks     []*graderd.Task
+		tasks     []*grader_task.Task
 		err       error
 	}{
 		{
-			desc:      "one task",
+			desc:      "one grader-task",
 			host:      "http://localhost:2376",
 			version:   "1.40",
 			imageName: "helloworld",
-			tasks: []*graderd.Task{
+			tasks: []*grader_task.Task{
 				{
 					AssignmentID: "helloworld",
 					StudentName:  "some name",
-					Urn:          "some:urn:key",
-					ZipKey:       "some:zip:key",
+					SubmUri:      "some:urn:key",
+					TestUri:      "some:zip:key",
 				},
 			},
 			err: nil,
@@ -72,8 +73,8 @@ func TestDockerClient_CreateTasks(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			d := graderd.NewDockerClient(test.host, test.version)
-			db := graderd.NewMemoryDB()
+			d := docker_client.NewDockerClient(test.host, test.version)
+			db := db2.NewMemoryDB()
 			ctx := context.Background()
 			// create tasks
 			err := d.CreateTasks(ctx, test.tasks, db)
@@ -93,20 +94,20 @@ func TestDockerClient_CreateAndStartTasks(t *testing.T) {
 		host      string
 		version   string
 		imageName string
-		tasks     []*graderd.Task
+		tasks     []*grader_task.Task
 		err       error
 	}{
 		{
-			desc:      "one task, foreign image",
+			desc:      "one grader-task, foreign image",
 			host:      "http://localhost:2376",
 			version:   "1.40",
 			imageName: "hello-world",
-			tasks: []*graderd.Task{
+			tasks: []*grader_task.Task{
 				{
 					AssignmentID: "hello-world",
 					StudentName:  "some name",
-					Urn:          "some:urn:key",
-					ZipKey:       "some:zip:key",
+					SubmUri:      "some:urn:key",
+					TestUri:      "some:zip:key",
 				},
 			},
 			err: nil,
@@ -115,8 +116,8 @@ func TestDockerClient_CreateAndStartTasks(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			d := graderd.NewDockerClient(test.host, test.version)
-			db := graderd.NewMemoryDB()
+			d := docker_client.NewDockerClient(test.host, test.version)
+			db := db2.NewMemoryDB()
 			ctx := context.Background()
 			// create tasks
 			err := d.CreateTasks(ctx, test.tasks, db)
