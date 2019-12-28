@@ -9,7 +9,6 @@ type Service struct {
 func NewGraderService(schd Scheduler, webAddr string) *Service {
 	return &Service{
 		schd:    schd,
-
 		webAddr: webAddr,
 	}
 }

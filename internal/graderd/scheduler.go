@@ -11,9 +11,9 @@ import (
 type Scheduler interface {
 	CreateImage(ctx context.Context, imageName string, imageTar []byte) error
 	ListTasks(ctx context.Context) ([]*graderTask.Task, error)
-	StartTask(ctx context.Context, taskID string) error
-	EndTask(ctx context.Context, taskID string) error
-	TaskOutput(ctx context.Context, taskID string) ([]byte, error)
+	StartTask(ctx context.Context, task *graderTask.Task) error
+	EndTask(ctx context.Context, task *graderTask.Task) error
+	TaskOutput(ctx context.Context, task *graderTask.Task) ([]byte, error)
 }
 
 type MockScheduler struct {

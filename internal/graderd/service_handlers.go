@@ -17,10 +17,9 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *pb.SubmitForGrading
 	}
 
 	// Create tasks.
-	taskList := make([]grader_task.Task, 0, len(req.GetTasks()))
+
 	for _, t := range req.GetTasks() {
 		task := grader_task.NewTask(t.GetAssignmentId(), t.GetZipKey(), t.GetTestKey(), t.GetStudentName(), t.GetCallbackUri(), t.GetTimeout())
-		taskList = append(taskList, task)
 		_ = s.schd.StartTask(ctx, task.ID)
 	}
 
