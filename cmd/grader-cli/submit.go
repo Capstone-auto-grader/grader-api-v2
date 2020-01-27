@@ -15,12 +15,12 @@ func Submit() cli.Command {
 		Description: "submit sends an assignment to be graded to the grader API",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "id, i",
-				Usage: "assignment id",
+				Name:  "image_name, i",
+				Usage: "image name",
 			},
 			cli.StringFlag{
-				Name:  "urn, u",
-				Usage: "assignment urn",
+				Name:  "uri, u",
+				Usage: "assignment uri",
 			},
 			cli.StringFlag{
 				Name:  "zipkey, z",
@@ -44,16 +44,16 @@ func SubmitAction() cli.ActionFunc {
 		addr := c.GlobalString("addr")
 		cert := c.GlobalString("cert")
 
-		id := c.String("id")
-		urn := c.String("urn")
+		id := c.String("image_name")
+		uri := c.String("uri")
 		zipkey := c.String("zipkey")
 		name := c.String("name")
 
 		req := &pb.SubmitForGradingRequest{
 			Tasks: []*pb.Task{
 				{
-					AssignmentId: id,
-					TestKey:       urn,
+					ImageName: id,
+					TestKey:       uri,
 					ZipKey:       zipkey,
 					StudentName:  name,
 				},

@@ -19,8 +19,8 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *pb.SubmitForGrading
 	// Create tasks.
 
 	for _, t := range req.GetTasks() {
-		task := grader_task.NewTask(t.GetAssignmentId(), t.GetZipKey(), t.GetTestKey(), t.GetStudentName(), t.GetCallbackUri(), t.GetTimeout())
-		_ = s.schd.StartTask(ctx, task.ID)
+		task := grader_task.NewTask(t.GetImageName(), t.GetZipKey(), t.GetTestKey(), t.GetStudentName(), t.GetCallbackUri(), t.GetTimeout())
+		_ = s.schd.StartTask(ctx, &task)
 	}
 
 
@@ -36,7 +36,7 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *pb.SubmitForGrading
 	return &pb.SubmitForGradingResponse{}, nil
 }
 
-func (s *Service) CreateAssignment(ctx context.Context, req *pb.CreateAssignmentRequest) (*pb.CreateAssignmentResponse, error) {
+func (s *Service) CreateImage(ctx context.Context, req *pb.CreateImageRequest) (*pb.CreateImageResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -46,5 +46,5 @@ func (s *Service) CreateAssignment(ctx context.Context, req *pb.CreateAssignment
 		return nil, grpcError(err)
 	}
 
-	return &pb.CreateAssignmentResponse{}, nil
+	return &pb.CreateImageResponse{}, nil
 }

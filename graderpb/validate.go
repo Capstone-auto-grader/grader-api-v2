@@ -64,7 +64,7 @@ func (m *Task) Validate() error {
 // - if it is a tar
 // - if the tar contains a Dockerfile
 // - if the tar contains a script
-func (m *CreateAssignmentRequest) Validate() error {
+func (m *CreateImageRequest) Validate() error {
 	if m.GetImageName() == "" {
 		return ErrCannotBeEmpty
 	}

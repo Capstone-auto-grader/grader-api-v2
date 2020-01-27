@@ -2,7 +2,6 @@ package graderd
 
 type Service struct {
 	schd 	Scheduler
-
 	webAddr string
 }
 

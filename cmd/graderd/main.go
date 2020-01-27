@@ -17,7 +17,6 @@ import (
 	"context"
 	"flag"
 	"github.com/Capstone-auto-grader/grader-api-v2/internal/docker-client"
-	sync_map "github.com/Capstone-auto-grader/grader-api-v2/internal/sync-map"
 	"log"
 	"net/http"
 	"strings"
@@ -35,7 +34,7 @@ var (
 	// command-line flags
 	grpcAddr      = flag.String("GRPC_ADDR", "localhost", "gRPC server endpoint")
 	grpcPort      = flag.String("GRPC_PORT", ":9090", "gRPC server port")
-	dockerAddr    = flag.String("DOCKER_ADDR", "http://localhost:2376", "docker host endpoint")
+	dockerAddr    = flag.String("DOCKER_ADDR", "tcp://localhost:2375", "docker host endpoint")
 	dockerVersion = flag.String("DOCKER_VERSION", "1.40", "docker host version")
 	databaseAddr  = flag.String("DATABASE_ADDR", "localhost:3306", "database endpoint")
 	webAddr       = flag.String("WEB_ADDR", "localhost:8080", "web API server endpoint")
@@ -77,7 +76,7 @@ func serve() error {
 	if err = pb.RegisterGraderHandler(context.Background(), router, conn); err != nil {
 		log.Fatalln(errors.Wrap(err, failedRegisterGateway))
 	}
-
+	log.Println("Serving")
 	return http.ListenAndServeTLS(*grpcPort, *certFile, *keyFile, grpcHandlerFunc(grpcServer, router))
 }
 

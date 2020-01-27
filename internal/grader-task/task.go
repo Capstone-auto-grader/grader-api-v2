@@ -21,7 +21,6 @@ type Task struct {
 	ID string
 	// ContainerID represents the container that's running this grader-task.
 	ContainerID string
-	// AssignmentID is the assignment that this grader-task belongs to.
 	ImageID		 string
 	StudentName  string
 	SubmUri      string

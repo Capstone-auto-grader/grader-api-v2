@@ -17,3 +17,11 @@
 # Go
 vendor
 bin
+
+# Tars
+*.tar
+
+# A directory that I made to put tests in
+test-projects/
+.env
+

@@ -12,6 +12,7 @@ import (
 	"github.com/docker/docker/client"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/pkg/errors"
 )
@@ -47,17 +48,22 @@ func NewDockerClient(host string, version string,  numWorkers int) *DockerClient
 
 // CreateAssignment with the given dockerfile and script, returns a unique assignment id.
 func (d *DockerClient) CreateImage(ctx context.Context, imageName string, imageTar []byte) error {
+	log.Printf("building image with tag %s", imageName)
 	buildOptions := types.ImageBuildOptions{
 		Dockerfile: "Dockerfile", // optional, is the default
 		Tags:       []string{fmt.Sprintf("%s:latest", imageName)},
 	}
 	img := bytes.NewReader(imageTar)
 	// build image
-	_, err := d.cli.ImageBuild(ctx, img, buildOptions)
+	resp, err := d.cli.ImageBuild(ctx, img, buildOptions)
 	if err != nil {
 		return errors.Wrap(err, graderd.ErrFailedToBuildImage.Error())
 	}
-
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		errors.Wrap(err, graderd.ErrFailedToBuildImage.Error())
+	}
+	fmt.Printf("Response %s", bytes)
 	return nil
 }
 
@@ -94,40 +100,43 @@ func (d *DockerClient) EndTask(ctx context.Context, task *grader_task.Task)error
 }
 
 func (d *DockerClient) StartContainerSync(ctx context.Context, task *grader_task.Task) error {
+	resp, err := d.cli.ContainerCreate(ctx, makeConfig(task), nil, nil, "")
+	if err != nil {
+		return err
+	}
+
+	task.ContainerID = resp.ID
+
+	if err := d.cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+
+	statusCh, errCh := d.cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			panic(err)
+		}
+	case <-statusCh:
+	}
 	return nil
 }
 
-func (d *DockerClient) createContainer(ctx context.Context, task *grader_task.Task) error {
-	config := container.Config{
+func makeConfig(task *grader_task.Task) *container.Config {
+	return &container.Config{
 		AttachStdout:    true,
 		AttachStderr:    true,
-		Tty:             false,
-		OpenStdin:       false,
-		StdinOnce:       false,
-		Env:             nil,
-		Cmd:             nil,
-		Healthcheck:     nil,
-		ArgsEscaped:     false,
-		Image:           "",
-		Volumes:         nil,
-		WorkingDir:      "",
-		Entrypoint:      nil,
-		NetworkDisabled: false,
-		MacAddress:      "",
-		OnBuild:         nil,
-		Labels:          nil,
-		StopSignal:      "",
-		StopTimeout:     nil,
-		Shell:           nil,
+		Tty:             true,
+		Env:             []string{fmt.Sprintf("AWS_SECRET_ACCESS_KEY=%s", os.Getenv("SECRET_KEY")),
+									fmt.Sprintf("AWS_ACCESS_KEY_ID=%s", os.Getenv("ACCESS_KEY"))},
+		Cmd:             []string{"bash", "unzip-and-grade.sh", task.SubmUri, task.TestUri, task.StudentName},
+		Image:           task.ContainerID,
 	}
 }
 
 // TaskOutput retrieves the stdout of the grader-task from the container.
 func (d *DockerClient) TaskOutput(ctx context.Context, task *grader_task.Task) ([]byte, error) {
-	task, err := d.mp.GetTask(task.ID)
-	if err != nil {
-		return nil, err
-	}
 	out, err := d.cli.ContainerLogs(ctx, task.ContainerID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		return nil, err
