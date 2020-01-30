@@ -17,6 +17,7 @@ import (
 	"context"
 	"flag"
 	"github.com/Capstone-auto-grader/grader-api-v2/internal/docker-client"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"strings"
@@ -94,7 +95,7 @@ func grpcHandlerFunc(grpcHandler *grpc.Server, httpHandler http.Handler) http.Ha
 
 func main() {
 	flag.Parse()
-
+	_ = godotenv.Load()
 	if err := serve(); err != nil {
 		log.Fatal(err)
 	}

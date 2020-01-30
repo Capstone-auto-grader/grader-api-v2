@@ -54,11 +54,14 @@ func (m *SyncMap) UpdateTaskContainerID(taskID string, containerId string) {
 func (m *SyncMap) UpdateStatus(taskID string, status grader_task.Status, checkStatus bool) error{
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	t := m.mp[taskID]
-	if checkStatus && t.Status == grader_task.StatusStarted {
-		return fmt.Errorf("task already started")
+	t, ok := m.mp[taskID]
+	if ok {
+		if checkStatus && t.Status == grader_task.StatusStarted {
+			return fmt.Errorf("task already started")
+		}
+		t.Status = status
 	}
-	t.Status = status
+
 	m.mp[taskID] = t
 	return nil
 }

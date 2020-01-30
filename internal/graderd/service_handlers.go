@@ -2,6 +2,7 @@ package graderd
 
 import (
 	"context"
+	"fmt"
 	"github.com/Capstone-auto-grader/grader-api-v2/internal/grader-task"
 
 	"google.golang.org/grpc/codes"
@@ -19,6 +20,7 @@ func (s *Service) SubmitForGrading(ctx context.Context, req *pb.SubmitForGrading
 	// Create tasks.
 
 	for _, t := range req.GetTasks() {
+		fmt.Printf("TASK %v\n",t)
 		task := grader_task.NewTask(t.GetImageName(), t.GetZipKey(), t.GetTestKey(), t.GetStudentName(), t.GetCallbackUri(), t.GetTimeout())
 		_ = s.schd.StartTask(ctx, &task)
 	}

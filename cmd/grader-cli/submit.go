@@ -19,17 +19,21 @@ func Submit() cli.Command {
 				Usage: "image name",
 			},
 			cli.StringFlag{
-				Name:  "uri, u",
-				Usage: "assignment uri",
+				Name:  "submission_uri, s",
+				Usage: "submission s3 uri",
 			},
 			cli.StringFlag{
-				Name:  "zipkey, z",
-				Usage: "zip key (s3 key)",
+				Name:  "test_uri, k",
+				Usage: "test bundle s3 uri",
 			},
 			cli.StringFlag{
 				Name:  "name, n",
 				Usage: "student's name",
 			},
+			cli.IntFlag{Name:"timeout, t",
+				Usage:"timeout",
+				Value: 60},
+
 		},
 		Action: SubmitAction(),
 	}
@@ -45,17 +49,18 @@ func SubmitAction() cli.ActionFunc {
 		cert := c.GlobalString("cert")
 
 		id := c.String("image_name")
-		uri := c.String("uri")
-		zipkey := c.String("zipkey")
+		subm := c.String("submission_uri")
+		test := c.String("test_uri")
 		name := c.String("name")
-
+		timeout := c.Int("timeout")
 		req := &pb.SubmitForGradingRequest{
 			Tasks: []*pb.Task{
 				{
 					ImageName: id,
-					TestKey:       uri,
-					ZipKey:       zipkey,
+					TestKey:       test,
+					ZipKey:       subm,
 					StudentName:  name,
+					Timeout: int32(timeout),
 				},
 			},
 		}

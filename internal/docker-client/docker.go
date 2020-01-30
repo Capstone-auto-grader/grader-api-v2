@@ -26,7 +26,7 @@ type DockerClient struct {
 // NewDockerClient creates a docker client for interacting with the docker host.
 func NewDockerClient(host string, version string,  numWorkers int) *DockerClient {
 	cli, err := client.NewClient(host, version, nil, nil)
-	queue := make(chan *grader_task.Task)
+	queue := make(chan *grader_task.Task, 500)
 	if err != nil {
 		log.Fatalln(err)
 		return nil
@@ -91,6 +91,7 @@ func (d *DockerClient) ListTasks(ctx context.Context) ([]*grader_task.Task, erro
 }
 
 func (d *DockerClient) StartTask(ctx context.Context, task *grader_task.Task) error {
+	d.mp.StoreTask(task)
 	d.queue <- task
 	return nil
 }
@@ -130,8 +131,9 @@ func makeConfig(task *grader_task.Task) *container.Config {
 		Tty:             true,
 		Env:             []string{fmt.Sprintf("AWS_SECRET_ACCESS_KEY=%s", os.Getenv("SECRET_KEY")),
 									fmt.Sprintf("AWS_ACCESS_KEY_ID=%s", os.Getenv("ACCESS_KEY"))},
-		Cmd:             []string{"bash", "unzip-and-grade.sh", task.SubmUri, task.TestUri, task.StudentName},
-		Image:           task.ContainerID,
+//		Cmd: []string{"echo", "$PATH"},
+		Cmd:             []string{"./unzip-and-grade.sh", task.SubmUri, task.TestUri, task.StudentName},
+		Image:           task.ImageID,
 	}
 }
 

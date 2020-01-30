@@ -47,6 +47,7 @@ func NewTask(imageID, submUri, testZip, studentName, callbackUri string, timeout
 		Timeout:      &to,
 	}
 	t.ID = t.Name()
+	fmt.Printf("CrEATED TASK %v\n", t)
 	return t
 }
 
