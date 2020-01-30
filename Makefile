@@ -7,7 +7,7 @@ proto: server-proto proxy-proto
 server-proto:
 	protoc -I/usr/local/include -I. \
 	  -I${GOPATH}/src \
-	  -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	  -I${GOPATH}/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.12.1/third_party/googleapis \
 	  --go_out=plugins=grpc:. \
 	  graderpb/grader.proto
 
@@ -15,7 +15,7 @@ server-proto:
 proxy-proto:
 	protoc -I/usr/local/include -I. \
       -I${GOPATH}/src \
-      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+      -I${GOPATH}/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.12.1/third_party/googleapis \
       --grpc-gateway_out=logtostderr=true:. \
       graderpb/grader.proto
 

@@ -16,6 +16,8 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/Capstone-auto-grader/grader-api-v2/internal/docker-client"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"strings"
@@ -33,7 +35,7 @@ var (
 	// command-line flags
 	grpcAddr      = flag.String("GRPC_ADDR", "localhost", "gRPC server endpoint")
 	grpcPort      = flag.String("GRPC_PORT", ":9090", "gRPC server port")
-	dockerAddr    = flag.String("DOCKER_ADDR", "http://localhost:2376", "docker host endpoint")
+	dockerAddr    = flag.String("DOCKER_ADDR", "tcp://localhost:2375", "docker host endpoint")
 	dockerVersion = flag.String("DOCKER_VERSION", "1.40", "docker host version")
 	databaseAddr  = flag.String("DATABASE_ADDR", "localhost:3306", "database endpoint")
 	webAddr       = flag.String("WEB_ADDR", "localhost:8080", "web API server endpoint")
@@ -54,7 +56,7 @@ func serve() error {
 		log.Fatalln(errors.Wrap(err, failedCertCreation))
 	}
 	grpcServer := grpc.NewServer(grpc.Creds(serverCert))
-	graderService := graderd.NewGraderService(graderd.NewDockerClient(*dockerAddr, *dockerVersion), graderd.NewPGDatabase(*databaseAddr), *webAddr)
+	graderService := graderd.NewGraderService(docker_client.NewDockerClient(*dockerAddr, *dockerVersion,  2),  *webAddr)
 	pb.RegisterGraderServer(grpcServer, graderService)
 
 	endpoint := *grpcAddr + *grpcPort
@@ -75,7 +77,7 @@ func serve() error {
 	if err = pb.RegisterGraderHandler(context.Background(), router, conn); err != nil {
 		log.Fatalln(errors.Wrap(err, failedRegisterGateway))
 	}
-
+	log.Println("Serving")
 	return http.ListenAndServeTLS(*grpcPort, *certFile, *keyFile, grpcHandlerFunc(grpcServer, router))
 }
 
@@ -93,7 +95,7 @@ func grpcHandlerFunc(grpcHandler *grpc.Server, httpHandler http.Handler) http.Ha
 
 func main() {
 	flag.Parse()
-
+	_ = godotenv.Load()
 	if err := serve(); err != nil {
 		log.Fatal(err)
 	}

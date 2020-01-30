@@ -15,21 +15,25 @@ func Submit() cli.Command {
 		Description: "submit sends an assignment to be graded to the grader API",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:  "id, i",
-				Usage: "assignment id",
+				Name:  "image_name, i",
+				Usage: "image name",
 			},
 			cli.StringFlag{
-				Name:  "urn, u",
-				Usage: "assignment urn",
+				Name:  "submission_uri, s",
+				Usage: "submission s3 uri",
 			},
 			cli.StringFlag{
-				Name:  "zipkey, z",
-				Usage: "zip key (s3 key)",
+				Name:  "test_uri, k",
+				Usage: "test bundle s3 uri",
 			},
 			cli.StringFlag{
 				Name:  "name, n",
 				Usage: "student's name",
 			},
+			cli.IntFlag{Name:"timeout, t",
+				Usage:"timeout",
+				Value: 60},
+
 		},
 		Action: SubmitAction(),
 	}
@@ -44,18 +48,19 @@ func SubmitAction() cli.ActionFunc {
 		addr := c.GlobalString("addr")
 		cert := c.GlobalString("cert")
 
-		id := c.String("id")
-		urn := c.String("urn")
-		zipkey := c.String("zipkey")
+		id := c.String("image_name")
+		subm := c.String("submission_uri")
+		test := c.String("test_uri")
 		name := c.String("name")
-
+		timeout := c.Int("timeout")
 		req := &pb.SubmitForGradingRequest{
 			Tasks: []*pb.Task{
 				{
-					AssignmentId: id,
-					UrnKey:       urn,
-					ZipKey:       zipkey,
+					ImageName: id,
+					TestKey:       test,
+					ZipKey:       subm,
 					StudentName:  name,
+					Timeout: int32(timeout),
 				},
 			},
 		}

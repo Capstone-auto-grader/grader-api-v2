@@ -40,7 +40,7 @@ func (m *SubmitForGradingRequest) Validate() error {
 // Validate validates a Task.
 // Currently, it only checks if all the fields are provided.
 func (m *Task) Validate() error {
-	if len(m.GetUrnKey()) == 0 {
+	if len(m.GetTestKey()) == 0 {
 		return ErrCannotBeEmpty
 	}
 
@@ -64,7 +64,7 @@ func (m *Task) Validate() error {
 // - if it is a tar
 // - if the tar contains a Dockerfile
 // - if the tar contains a script
-func (m *CreateAssignmentRequest) Validate() error {
+func (m *CreateImageRequest) Validate() error {
 	if m.GetImageName() == "" {
 		return ErrCannotBeEmpty
 	}

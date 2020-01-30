@@ -33,6 +33,7 @@ func main() {
 	}
 	app.Commands = cli.Commands{
 		Submit(),
+		MakeContainer(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
